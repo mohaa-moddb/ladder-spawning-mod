@@ -1,0 +1,37 @@
+name: Publish artifacts
+
+on:
+  push:
+    tags:
+        - "*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-file:
+   uses: ./.github/workflows/shared-build.yml
+
+  publish-release:
+    runs-on: "ubuntu-24.04"
+    environment: "release"
+    needs: [build-file]
+
+    env:
+      RELEASE_NAME: ${{ github.event.repository.name }}-${{github.ref_name}}
+
+    steps:
+    - uses: actions/download-artifact@v4
+      with:
+        name: 'out-archive'
+        path: ${{github.workspace}}/archive
+
+    - name: Zip
+      working-directory: ${{github.workspace}}/archive
+      run: zip -r ${{github.workspace}}/zzzzzzzzzzz-${{ env.RELEASE_NAME }}.pk3 ./
+
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      with:
+        name: '${{github.ref_name}}'
+        files: ${{github.workspace}}/zzzzzzzzzzz-${{ env.RELEASE_NAME }}.pk3

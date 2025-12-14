@@ -1,0 +1,177 @@
+// Spawn an invisible ladder trigger_multiple (visible if using the "spawn laser" parameter).
+// All ladders will be 20+ units away from any walls to prevent players getting stuck when climbing (20 units behind origin's coords when facing ladder's angle).
+//
+//-----------------------------------------------------------------------------
+//
+// Parameters: origin, angle for players to attach, ladder height (minimum = 70), ladder width from center (default = 13.5), thickness of ladder (default = 1) extending into the wall when facing ladder's angle, ...
+// ... spawn solid clip (0 = no, 1 = yes), spawn laser (0 = no, 1 = 1 laser, 2 = 2 lasers outlining ladder, 3 = ladder with visible rungs), laser color [default = ( 0 0 1 ) or blue].
+//
+// Example: exec global/spawnladder.scr ( -200 300 0 ) 180 500 13.5 1 0 0
+// Example2: local.ladder = thread global/spawnladder.scr::main ( -200 300 0 ) 180 500 13.5 1 1 3 ( 0 0 1 )
+//
+//-----------------------------------------------------------------------------
+//
+// This mod will not work outside of UBER MODS unless nangla_aa_torso.st is also included, or unless another mike_torso.st file is modified.
+// In another mod's mike_torso.st (or similar torso.st), remove all 8 CAN_CLIMB_DOWN_LADDER, CAN_CLIMB_UP_LADDER conditions from these 2 states: LADDER_IDLE_LEFT, LADDER_IDLE_RIGHT.
+//
+// Turn these...
+//        LADDER_UP_RIGHT             : FORWARD LOOKING_UP "-30" CAN_CLIMB_UP_LADDER
+//        LADDER_UP_RIGHT             : BACKWARD !LOOKING_UP "-30" CAN_CLIMB_UP_LADDER
+//        LADDER_DOWN_LEFT            : FORWARD !LOOKING_UP "-30" CAN_CLIMB_DOWN_LADDER
+//        LADDER_DOWN_LEFT            : BACKWARD LOOKING_UP "-30" CAN_CLIMB_DOWN_LADDER
+//
+// into these...
+//        LADDER_UP_RIGHT             : FORWARD LOOKING_UP "-30"
+//        LADDER_UP_RIGHT             : BACKWARD !LOOKING_UP "-30"
+//        LADDER_DOWN_LEFT            : FORWARD !LOOKING_UP "-30"
+//        LADDER_DOWN_LEFT            : BACKWARD LOOKING_UP "-30"
+
+main local.origin local.angle local.height local.width local.thickness local.spawn_solidclip local.spawn_laser local.laser_color:
+
+	if(local.origin == NIL) { wait 1; println("----- ERROR global/spawnladder.scr: 'origin' parameter is missing!"); end }
+	if(local.angle == NIL) { wait 1; println("----- ERROR global/spawnladder.scr: 'angle' parameter is missing!"); end }
+	if(local.height == NIL) { wait 1; println("----- ERROR global/spawnladder.scr: 'height' parameter is missing!"); end }
+	if(local.height < 70) { wait 1; println("----- ERROR global/spawnladder.scr: 'height' parameter must be >= 70."); end }
+	if(local.width != NIL && local.width <= 0) { wait 1; println("----- ERROR global/spawnladder.scr: 'width' parameter must be > 0."); end }
+	if(local.thickness != NIL && local.thickness <= 0) { wait 1; println("----- ERROR global/spawnladder.scr: 'thickness' parameter must be > 0."); end }
+	if(local.laser_color != NIL && local.laser_color[2] == NIL) { wait 1; println("----- ERROR global/spawnladder.scr: 'laser_color' parameter must be in ( 0 0 0 ) format."); end }
+	if(local.width == NIL) { local.width = 13.5 } // default
+	if(local.thickness == NIL) { local.thickness = 1 } // default
+
+	local.setsize1 = ( 0 (local.width * -1) 0 )
+	local.setsize2 = ( local.thickness local.width local.height )
+	local.behind_vec = -1 * (angles_toforward( 0 local.angle 0 ))
+	local.left_vec = angles_toleft( 0 local.angle 0 )
+	local.right_vec = -1 * (angles_toleft( 0 local.angle 0 ))
+
+	local.ladder = spawn trigger_multiple targetname "spawnladder_trigger"
+	local.ladder.origin = trace local.origin (local.origin + local.behind_vec * 20)	// keep players climbing ladders at least 20 units away from any solidclips or walls.
+	local.ladder.angle = local.angle
+	local.ladder setsize local.setsize1 local.setsize2
+	local.ladder.height = local.height
+	local.ladder setthread ladder
+
+	local.ladder.offset = 14 // optional offset distance away from ladder (lower = players hands closer to ladder, higher = further away, default = 14). If > 18, players cannot climb the ladder.
+
+	if(local.spawn_solidclip == 1)
+	{
+		thread solidclip local.origin local.setsize1 local.setsize2 local.angle
+		local.laserorigin = trace local.origin (local.origin + local.behind_vec * 2)		// if a solid clip is spawned, place the lasers 2 units in front of the solid clip.
+	}
+	else { local.laserorigin = local.origin }		// without a solid clip spawned (using a wall instead), lasers will instead be 20 units behind the ladder trigger.
+								// if the lasers get obstructed by walls or objects, then most likely players will get obstructed too (move origin further away).
+	if(local.spawn_laser == 1)
+	{
+		thread spawnlaser ( local.laserorigin[0] local.laserorigin[1] (local.laserorigin[2] + local.setsize2[2]) ) ( local.laserorigin[0] local.laserorigin[1] (local.laserorigin[2] + local.setsize1[2]) ) local.laser_color 1
+	}
+	if(local.spawn_laser == 2 || local.spawn_laser == 3)
+	{
+		local.leftorigin = trace local.laserorigin (local.laserorigin + local.left_vec * local.width)
+		thread spawnlaser ( local.leftorigin[0] local.leftorigin[1] (local.leftorigin[2] + local.height) ) ( local.leftorigin[0] local.leftorigin[1] (local.leftorigin[2] + local.setsize1[2]) ) local.laser_color 1
+		local.rightorigin = trace local.laserorigin (local.laserorigin + local.right_vec * local.width)
+		thread spawnlaser ( local.rightorigin[0] local.rightorigin[1] (local.rightorigin[2] + local.height) ) ( local.rightorigin[0] local.rightorigin[1] (local.rightorigin[2] + local.setsize1[2]) ) local.laser_color 1
+
+		if(local.spawn_laser == 3)
+		{
+			local.segment_dist = 16				// distance between each ladder rung (same as original maps' ladders).
+			local.leftorigin += ( 0 0 local.height )
+			local.rightorigin += ( 0 0 local.height )
+
+			for(local.s = local.laserorigin[2] + local.height; local.s >= local.laserorigin[2] + local.segment_dist; local.s -= local.segment_dist)
+			{
+				local.leftorigin -= ( 0 0 local.segment_dist )
+				local.rightorigin -= ( 0 0 local.segment_dist )
+				thread spawnlaser local.leftorigin local.rightorigin local.laser_color 1
+			}
+		}
+	}
+end local.ladder
+
+//-----------------------------------------------------------------------------
+
+ladder:
+
+	local.player = parm.other
+	local.pangle = local.player.angle
+	local.langle = self.angle
+	local.vangle = local.player.viewangles[0]
+	if(local.pangle < 0) { local.pangle += 360 } // keep player angle & ladder angle in 0 - 360 format.
+	if(local.langle < 0) { local.langle += 360 }
+	local.lower = local.langle - 70
+	local.upper = local.langle + 70
+	if(local.lower < 0) { local.lower += 360; local.fliplow = 1 }
+	if(local.upper > 360) { local.upper -= 360; local.flipup = 1 }
+
+	if(local.player == NULL || local.player.climbing_ladder == 1 || local.player.dead == 1 || !isalive local.player || local.player.dmteam == "spectator" || local.player getmovement == "standing") { end }
+	if((local.vangle > -30 && local.vangle < 30) || local.player.origin[2] > self.origin[2] + self.height + 18 || (local.player.origin[2] > self.origin[2] + self.height - 50 && local.vangle < 40)) { end }
+
+	if(local.player.origin[2] > self.origin[2] + self.height - 50 && local.vangle >= 40) { local.pangle -= 180 } // flip pangle by 180 degrees if player is at the top of the ladder.
+	if(local.pangle < 0) { local.pangle += 360 }
+	if(local.fliplow == 1 && local.pangle > local.lower) { end }
+	if(local.fliplow != 1 && local.pangle < local.lower) { end }
+	if(local.flipup == 1 && local.pangle < local.upper) { end }
+	if(local.flipup != 1 && local.pangle > local.upper) { end }
+
+	local.player.angle = self.angle
+	local.player face ( local.player.viewangles[0] self.angle local.player.viewangles[2] )
+	local.player.climbing_ladder = 1
+	if(local.player.origin[2] >= self.origin[2] + self.height - 50 && local.vangle >= 40)
+	{
+		local.player forcetorsostate LADDER_DOWN_LEFT // only for players going down ladders from the top, prevents them from endlessly hopping on/off the ladder.
+		local.player.origin = ( self.origin[0] self.origin[1] (local.player.origin[2] - 66 ) ) + (( self.forwardvector[0] self.forwardvector[1] 0 ) * -1)
+	}
+	else
+	{
+		local.player forcetorsostate GET_ON_LADDER
+		local.player.origin = ( self.origin[0] self.origin[1] local.player.origin[2] ) + (( self.forwardvector[0] self.forwardvector[1] 0 ) * self.offset * -1) // forwardvector * -1 = backwardvector
+	}
+	local.player thread status_check self
+end
+
+status_check local.ladder:
+
+	local.team = self.dmteam
+	while(isalive self && self.dmteam == local.team && self.dead != 1 && self istouching local.ladder)
+	{
+		self.angle = local.ladder.angle
+		waitframe
+	}
+	if(self != NULL)
+	{
+		self.climbing_ladder = 0
+		self.origin += ( 0 0 10 ) // gives them an extra height boost when getting off the ladder, to keep them from auto-grabbing back onto it.
+		if(isalive self && self.dmteam != "spectator" && self.dead != 1) { self forcetorsostate STAND } // in case they get pushed off the ladder
+	}
+end
+
+//-----------------------------------------------------------------------------
+
+solidclip local.origin local.setsize1 local.setsize2 local.angle:
+
+	local.clip = spawn script_object targetname "spawnladder_solidclip"
+	local.clip.origin = local.origin
+	local.clip setsize local.setsize1 local.setsize2
+	local.clip.angle = local.angle
+	local.clip solid
+	local.clip nodamage
+end
+
+spawnlaser local.origin local.endpoint local.color local.scale:
+
+	if(local.color == NIL) { local.color = ( 0 0 1 ) } // default color = blue
+
+	local.laser = spawn func_beam targetname "spawnladder_laser"
+	local.laser minoffset 0.0
+	local.laser maxoffset 0.0
+	local.laser numsegments 1
+	local.laser life 0
+	local.laser color local.color
+	local.laser alpha 0.4
+	local.laser alwaysdraw
+	local.laser activate	
+	if(local.scale == NIL || local.scale <= 0) { local.laser scale 1 }	
+	else { local.laser scale local.scale }
+	local.laser notsolid
+	local.laser.origin = local.origin
+	local.laser endpoint local.endpoint
+end local.laser
