@@ -42,8 +42,7 @@ state STAND
 
 	states
 	{
-		KILLED					: KILLED
-		PAIN					: PAIN
+		KILLED				: KILLED
 
 		VEHICLE_START			: IS_USING_VEHICLE
 		TURRET_START			: IS_USING_TURRET
@@ -90,6 +89,11 @@ state STAND
 		CHECK_PRIMARY_ATTACK_SEMIAUTO	: +ATTACK_PRIMARY IS_WEAPON_SEMIAUTO "mainhand" IS_WEAPON_READY_TO_FIRE "mainhand"
 		CHECK_PRIMARY_ATTACK_FULLAUTO	: ATTACK_PRIMARY !IS_WEAPON_SEMIAUTO "mainhand" IS_WEAPON_READY_TO_FIRE "mainhand"
 		CHECK_SECONDARY_ATTACK			: +ATTACK_SECONDARY
+
+		// check for needing to restart the STAND state so that we can select a different 
+		// viewmodel anim (part of the viewmodel idle anim setting code)
+		STAND	: +CHECK_MOVEMENT_SPEED "mainhand"
+		STAND	: -CHECK_MOVEMENT_SPEED "mainhand"
 	}
 }
 
@@ -112,7 +116,6 @@ state CHECK_PRIMARY_ATTACK_FULLAUTO
 	states
 	{
 		STAND					: KILLED
-//		PAIN					: PAIN
 	
 		STAND					: NEW_WEAPON
 		STAND					: RELOAD
@@ -147,6 +150,11 @@ state ATTACK_SMG_PRIMARY
 		mp40_crouch_fire		: IS_WEAPON_ACTIVE "mainhand" "MP40" POSITION_TYPE "crouching"
 		mp40_stand_fire			: IS_WEAPON_ACTIVE "mainhand" "MP40"
 
+		sten_stand_run_fire		: IS_WEAPON_ACTIVE "mainhand" "Sten Mark II" POSITION_TYPE "standing" MOVEMENT_TYPE "running"
+		sten_crouch_run_fire	: IS_WEAPON_ACTIVE "mainhand" "Sten Mark II" POSITION_TYPE "crouching" MOVEMENT_TYPE "running"
+		sten_crouch_fire		: IS_WEAPON_ACTIVE "mainhand" "Sten Mark II" POSITION_TYPE "crouching"
+		sten_stand_fire			: IS_WEAPON_ACTIVE "mainhand" "Sten Mark II"
+
 		smg_stand_run_fire		: POSITION_TYPE "standing" MOVEMENT_TYPE "running"
 		smg_crouch_run_fire		: POSITION_TYPE "crouching" MOVEMENT_TYPE "running"
 		smg_crouch_fire			: POSITION_TYPE "crouching"
@@ -156,7 +164,6 @@ state ATTACK_SMG_PRIMARY
 	states
 	{
 		STAND							: KILLED
-//		PAIN							: PAIN
 
 		STAND							: !ATTACK_PRIMARY ANIMDONE_TORSO 
 		STAND							: ANIMDONE_TORSO !IS_WEAPON_READY_TO_FIRE "mainhand"
@@ -194,7 +201,6 @@ state ATTACK_MG_PRIMARY
 	states
 	{
 		STAND							: KILLED
-//		PAIN							: PAIN
 
 //		STAND							: !ATTACK_PRIMARY ANIMDONE_TORSO 
 //		STAND							: RELOAD !ATTACK_PRIMARY IS_WEAPON_READY_TO_FIRE "mainhand"
@@ -229,7 +235,6 @@ state CHECK_PRIMARY_ATTACK_SEMIAUTO
 	states
 	{
 		STAND					: KILLED
-//		PAIN					: PAIN
 	
 		STAND					: NEW_WEAPON
 		STAND					: RELOAD
@@ -272,12 +277,14 @@ state ATTACK_RIFLE_PRIMARY
 	states
 	{
 		STAND							: KILLED
-//		PAIN							: PAIN
 
 //		STAND							: !ATTACK_PRIMARY ANIMDONE_TORSO 
 		ATTACK_SPRINGFIELD_RECHAMBER	: ANIMDONE_TORSO IS_WEAPON_ACTIVE "mainhand" "Springfield '03 Sniper"
-		ATTACK_KAR98_RECHAMBER			: ANIMDONE_TORSO IS_WEAPON_ACTIVE "mainhand" "Mauser KAR 98K"
-		ATTACK_KAR98_RECHAMBER			: ANIMDONE_TORSO IS_WEAPON_ACTIVE "mainhand" "KAR98 - Sniper"		
+
+		ATTACK_RIFLE_RECHAMBER			: ANIMDONE_TORSO IS_WEAPON_ACTIVE "mainhand" "Mauser KAR 98K"
+		ATTACK_RIFLE_RECHAMBER			: ANIMDONE_TORSO IS_WEAPON_ACTIVE "mainhand" "KAR98 - Sniper"
+		ATTACK_RIFLE_RECHAMBER			: ANIMDONE_TORSO IS_WEAPON_ACTIVE "mainhand" "Mosin Nagant Rifle"
+		ATTACK_RIFLE_RECHAMBER			: ANIMDONE_TORSO IS_WEAPON_ACTIVE "mainhand" "Lee-Enfield"
 		STAND							: ANIMDONE_TORSO 
 		CHECK_PRIMARY_ATTACK_SEMIAUTO	: +ATTACK_PRIMARY IS_WEAPON_READY_TO_FIRE "mainhand"
 	}
@@ -307,13 +314,12 @@ state ATTACK_SPRINGFIELD_RECHAMBER
 	states
 	{
 		STAND							: KILLED
-//		PAIN							: PAIN
 	
 		STAND							: ANIMDONE_TORSO 
 	}
 }
 
-state ATTACK_KAR98_RECHAMBER
+state ATTACK_RIFLE_RECHAMBER
 {
 	movetype legs
 	
@@ -330,14 +336,22 @@ state ATTACK_KAR98_RECHAMBER
 	
 	action
 	{
-		kar98_crouch_rechamber	: POSITION_TYPE "crouching"
-		kar98_stand_rechamber	: default
+		enfield_crouch_rechamber	: POSITION_TYPE "crouching" IS_WEAPON_ACTIVE "mainhand" "Lee-Enfield"
+		enfield_stand_rechamber		: IS_WEAPON_ACTIVE "mainhand" "Lee-Enfield"
+
+		mosin_crouch_rechamber	: POSITION_TYPE "crouching" IS_WEAPON_ACTIVE "mainhand" "Mosin Nagant Rifle"
+		mosin_stand_rechamber		: IS_WEAPON_ACTIVE "mainhand" "Mosin Nagant Rifle"
+
+		kar98_crouch_rechamber		: POSITION_TYPE "crouching"
+		kar98_stand_rechamber		: default
+
+		svt_crouch_rechamber		: POSITION_TYPE "crouching" IS_WEAPON_ACTIVE "mainhand" "SVT 40"
+		svt_stand_rechamber		: IS_WEAPON_ACTIVE "mainhand" "SVT 40"
 	}
 	
 	states
 	{
 		STAND						: KILLED
-//		PAIN						: PAIN
 	
 		STAND						: ANIMDONE_TORSO 
 	}
@@ -371,7 +385,6 @@ state ATTACK_PISTOL_PRIMARY
 	states
 	{
 		STAND							: KILLED
-//		PAIN							: PAIN
 
 //		STAND							: !ATTACK_PRIMARY ANIMDONE_TORSO 
 		STAND							: ANIMDONE_TORSO 
@@ -394,7 +407,6 @@ state ATTACK_ITEM_PRIMARY
 	states
 	{
 		STAND							: KILLED
-//		PAIN							: PAIN
 
 		STAND							: !ATTACK_PRIMARY
 		CHECK_PRIMARY_ATTACK_SEMIAUTO	: +ATTACK_PRIMARY IS_WEAPON_READY_TO_FIRE "mainhand"
@@ -421,7 +433,6 @@ state ATTACK_BAZOOKA_PRIMARY
 	states
 	{
 		STAND							: KILLED
-//		PAIN							: PAIN
 
 		STAND							: !ATTACK_PRIMARY ANIMDONE_TORSO 
 		CHECK_PRIMARY_ATTACK_SEMIAUTO	: +ATTACK_PRIMARY IS_WEAPON_READY_TO_FIRE "mainhand"
@@ -448,7 +459,6 @@ state ATTACK_SHOTGUN_PRIMARY
 	states
 	{
 		STAND							: KILLED
-//		PAIN							: PAIN
 
 		STAND							: !ATTACK_PRIMARY ANIMDONE_TORSO 
 		CHECK_PRIMARY_ATTACK_SEMIAUTO	: +ATTACK_PRIMARY IS_WEAPON_READY_TO_FIRE "mainhand"
@@ -473,25 +483,32 @@ state CHECK_SECONDARY_ATTACK
 	states
 	{
 		STAND					: KILLED
-//		PAIN					: PAIN
 	
-		STAND					: RELOAD
-		
+//		STAND					: RELOAD
+		STAND					: !HAS_AMMO_IN_CLIP "mainhand" "secondary"
+
 		ATTACK_PISTOL_SECONDARY	: IS_WEAPONCLASS_READY_TO_FIRE "mainhand" "pistol" "secondary"
+
+		ATTACK_RIFLE_SECONDARY	: IS_WEAPONCLASS_READY_TO_FIRE "mainhand" "rifle" "secondary" IS_WEAPON_ACTIVE "mainhand" "M1 Garand"
+		ATTACK_RIFLE_SECONDARY	: IS_WEAPONCLASS_READY_TO_FIRE "mainhand" "rifle" "secondary" IS_WEAPON_ACTIVE "mainhand" "Mauser KAR 98K"
+		ATTACK_RIFLE_SECONDARY	: IS_WEAPONCLASS_READY_TO_FIRE "mainhand" "rifle" "secondary" IS_WEAPON_ACTIVE "mainhand" "Lee-Enfield"
+		ATTACK_RIFLE_SECONDARY	: IS_WEAPONCLASS_READY_TO_FIRE "mainhand" "rifle" "secondary" IS_WEAPON_ACTIVE "mainhand" "Mosin Nagant Rifle"
+
+		ATTACK_SMG_SECONDARY	: IS_WEAPONCLASS_READY_TO_FIRE "mainhand" "smg" "secondary" IS_WEAPON_ACTIVE "mainhand" "Thompson"
+		ATTACK_SMG_SECONDARY	: IS_WEAPONCLASS_READY_TO_FIRE "mainhand" "smg" "secondary" IS_WEAPON_ACTIVE "mainhand" "MP40"
+		ATTACK_SMG_SECONDARY	: IS_WEAPONCLASS_READY_TO_FIRE "mainhand" "smg" "secondary" IS_WEAPON_ACTIVE "mainhand" "Sten Mark II"
+		ATTACK_SMG_SECONDARY	: IS_WEAPONCLASS_READY_TO_FIRE "mainhand" "smg" "secondary" IS_WEAPON_ACTIVE "mainhand" "PPSH SMG"
+
+		ATTACK_MG_SECONDARY		: IS_WEAPONCLASS_READY_TO_FIRE "mainhand" "mg" "secondary" IS_WEAPON_ACTIVE "mainhand" "BAR"
+		ATTACK_MG_SECONDARY		: IS_WEAPONCLASS_READY_TO_FIRE "mainhand" "mg" "secondary" IS_WEAPON_ACTIVE "mainhand" "StG 44"
+
+		ATTACK_HEAVY_SECONDARY	: IS_WEAPONCLASS_READY_TO_FIRE "mainhand" "heavy" "secondary" IS_WEAPON_ACTIVE "mainhand" "Shotgun"
 		
-//		ATTACK_RIFLE_2NDARY		: IS_WEAPON_ACTIVE "mainhand" "M1_Garand"
-//		ATTACK_GRENADE_2NDARY	: IS_WEAPON_ACTIVE "mainhand" "FragGrenade"
-//		ATTACK_RIFLE_2NDARY		: IS_WEAPON_ACTIVE "mainhand" "MP40"
-
-//		ATTACK_RIFLE_2NDARY		: IS_WEAPONCLASS_READY_TO_FIRE "mainhand" "rifle" "secondary"
-
 		CHARGE_ATTACK_GRENADE_SECONDARY	: IS_WEAPONCLASS_READY_TO_FIRE "mainhand" "grenade" "secondary"
 
 		PUT_AWAY_ITEM			: IS_WEAPON_ACTIVE "mainhand" "Spy Camera"
 		PUT_AWAY_ITEM			: IS_WEAPON_ACTIVE "mainhand" "Binoculars"
-	
-//		STAND					: IS_WEAPON_ACTIVE "Error"
-//		STAND					: !ATTACK_PRIMARY
+		ATTACK_ITEM_SECONDARY	: IS_WEAPONCLASS_READY_TO_FIRE "mainhand" "item" "secondary"
 
 		STAND					: default
 	}
@@ -520,6 +537,97 @@ state ATTACK_PISTOL_SECONDARY
 	}
 }
 
+state ATTACK_RIFLE_SECONDARY
+{
+	movetype legs
+
+	entrycommands
+	{
+		viewmodelanim fire_secondary 1
+	}
+
+	action
+	{
+		rifle_butt	: default
+	}
+	
+	states
+	{
+		STAND	 	: KILLED
+		
+		STAND	 	: ANIMDONE_TORSO
+	}
+}
+
+state ATTACK_SMG_SECONDARY
+{
+	movetype legs
+
+	entrycommands
+	{
+		viewmodelanim fire_secondary 1
+	}
+
+	action
+	{
+		mp40_butt	: IS_WEAPON_ACTIVE "mainhand" "MP40"
+		sten_butt	: IS_WEAPON_ACTIVE "mainhand" "Sten Mark II"
+		smg_butt	: default
+	}
+	
+	states
+	{
+		STAND	 	: KILLED
+		
+		STAND	 	: ANIMDONE_TORSO
+	}
+}
+
+state ATTACK_MG_SECONDARY
+{
+	movetype legs
+
+	entrycommands
+	{
+		viewmodelanim fire_secondary 1
+	}
+
+	action
+	{
+		mp44_butt	: IS_WEAPON_ACTIVE "mainhand" "StG 44"
+		mg_butt		: default
+	}
+	
+	states
+	{
+		STAND	 	: KILLED
+		
+		STAND	 	: ANIMDONE_TORSO
+	}
+}
+
+state ATTACK_HEAVY_SECONDARY
+{
+	movetype legs
+
+	entrycommands
+	{
+		viewmodelanim fire_secondary 1
+	}
+
+	action
+	{
+		shotgun_butt	: default
+	}
+	
+	states
+	{
+		STAND		 	: KILLED
+		
+		STAND	 		: ANIMDONE_TORSO
+	}
+}
+
 // put away the item and pull out the last active weapon
 state PUT_AWAY_ITEM
 {
@@ -540,6 +648,23 @@ state PUT_AWAY_ITEM
 //	}
 }
 
+state ATTACK_ITEM_SECONDARY
+{
+	movetype legs
+
+	entrycommands
+	{
+		weaponcommand mainhand anim secondaryfire
+	}
+	
+	states
+	{
+		STAND							: KILLED
+
+		STAND							: !ATTACK_PRIMARY
+		CHECK_PRIMARY_ATTACK_SEMIAUTO	: +ATTACK_PRIMARY IS_WEAPON_READY_TO_FIRE "mainhand"
+	}
+}
 
 //==============================================================================
 //==============================================================================
@@ -561,6 +686,15 @@ state CHARGE_ATTACK_GRENADE
 	{
 		steilhandgranate_crouch_charge	: IS_WEAPON_ACTIVE "mainhand" "Stielhandgranate" POSITION_TYPE "crouching"
 		steilhandgranate_stand_charge	: IS_WEAPON_ACTIVE "mainhand" "Stielhandgranate"
+
+//		nebelhandgranate_crouch_charge	: IS_WEAPON_ACTIVE "mainhand" "Nebelhandgranate" POSITION_TYPE "crouching"
+		nebelhandgranate_stand_charge	: IS_WEAPON_ACTIVE "mainhand" "Nebelhandgranate"
+
+//		nebelhandgranate_crouch_charge	: IS_WEAPON_ACTIVE "mainhand" "RDG-1 Smoke Grenade" POSITION_TYPE "crouching"
+//		nebelhandgranate_stand_charge	: IS_WEAPON_ACTIVE "mainhand" "RDG-1 Smoke Grenade"
+
+//		nebelhandgranate_crouch_charge	: IS_WEAPON_ACTIVE "mainhand" "M18 Smoke Grenade" POSITION_TYPE "crouching"
+//		nebelhandgranate_stand_charge	: IS_WEAPON_ACTIVE "mainhand" "M18 Smoke Grenade"
 	
 		grenade_crouch_charge			: POSITION_TYPE "crouching"
 		grenade_stand_charge			: default
@@ -568,10 +702,8 @@ state CHARGE_ATTACK_GRENADE
 
 	states
 	{
-		STAND 				: IS_WEAPON_ACTIVE "Error" "grenade"
-		STAND 				: !HAS_WEAPON
-
-		TURRET_START			: IS_USING_TURRET 
+										// drop a grenade when he gets hit
+//		RELEASE_ATTACK_GRENADE	: KILLED
 		RELEASE_KILLED_FRAG		: KILLED
 		RELEASE_ATTACK_GRENADE	: !ATTACK_PRIMARY MIN_CHARGE_TIME_MET "mainhand"
 	}
@@ -590,16 +722,22 @@ state RELEASE_ATTACK_GRENADE
 	{
 		steilhandgranate_crouch_fire	: IS_WEAPON_ACTIVE "mainhand" "Stielhandgranate" POSITION_TYPE "crouching"
 		steilhandgranate_stand_fire		: IS_WEAPON_ACTIVE "mainhand" "Stielhandgranate"
+
+		steilhandgranate_crouch_fire	: IS_WEAPON_ACTIVE "mainhand" "Nebelhandgranate" POSITION_TYPE "crouching"
+		steilhandgranate_stand_fire	: IS_WEAPON_ACTIVE "mainhand" "Nebelhandgranate"
 	
+		steilhandgranate_crouch_fire	: IS_WEAPON_ACTIVE "mainhand" "RDG-1 Smoke Grenade" POSITION_TYPE "crouching"
+		steilhandgranate_stand_fire	: IS_WEAPON_ACTIVE "mainhand" "RDG-1 Smoke Grenade"
+
+		steilhandgranate_crouch_fire	: IS_WEAPON_ACTIVE "mainhand" "M18 Smoke Grenade" POSITION_TYPE "crouching"
+		steilhandgranate_stand_fire	: IS_WEAPON_ACTIVE "mainhand" "M18 Smoke Grenade"
+
 		grenade_crouch_fire				: POSITION_TYPE "crouching"
 		grenade_stand_fire				: default
 	}
 
 	states
 	{
-		STAND 				: IS_WEAPON_ACTIVE "Error" "grenade"
-		STAND 				: !HAS_WEAPON
-
 		RELEASE_KILLED_FRAG : KILLED MIN_CHARGE_TIME_MET "mainhand" // killed before the grenade was released
 		STAND	 			: KILLED
 
@@ -620,6 +758,15 @@ state CHARGE_ATTACK_GRENADE_SECONDARY
 	{
 		steilhandgranate_crouch_charge_secondary	: IS_WEAPON_ACTIVE "mainhand" "Stielhandgranate" POSITION_TYPE "crouching"
 		steilhandgranate_stand_charge_secondary		: IS_WEAPON_ACTIVE "mainhand" "Stielhandgranate"
+
+//		nebelhandgranate_crouch_charge_secondary	: IS_WEAPON_ACTIVE "mainhand" "Nebelhandgranate" POSITION_TYPE "crouching"
+		nebelhandgranate_stand_charge_secondary		: IS_WEAPON_ACTIVE "mainhand" "Nebelhandgranate"
+
+//		nebelhandgranate_crouch_charge_secondary	: IS_WEAPON_ACTIVE "mainhand" "RDG-1 Smoke Grenade" POSITION_TYPE "crouching"
+//		nebelhandgranate_stand_charge_secondary		: IS_WEAPON_ACTIVE "mainhand" "RDG-1 Smoke Grenade"
+
+//		nebelhandgranate_crouch_charge_secondary	: IS_WEAPON_ACTIVE "mainhand" "M18 Smoke Grenade" POSITION_TYPE "crouching"
+//		nebelhandgranate_stand_charge_secondary		: IS_WEAPON_ACTIVE "mainhand" "M18 Smoke Grenade"
 	
 		grenade_crouch_charge_secondary				: POSITION_TYPE "crouching"
 		grenade_stand_charge_secondary				: default
@@ -627,10 +774,9 @@ state CHARGE_ATTACK_GRENADE_SECONDARY
 
 	states
 	{
-		STAND 				: IS_WEAPON_ACTIVE "Error" "grenade"
-		STAND 				: !HAS_WEAPON
-
-		TURRET_START							: IS_USING_TURRET
+//		RELEASE_ATTACK_GRENADE_SECONDARY		: PAIN	// This would make the player 
+									// drop a grenade when he gets hit
+//		RELEASE_ATTACK_GRENADE_SECONDARY		: KILLED
 		RELEASE_KILLED_FRAG						: KILLED
 		RELEASE_ATTACK_GRENADE_SECONDARY		: !ATTACK_SECONDARY MIN_CHARGE_TIME_MET "mainhand"
 	}
@@ -649,16 +795,22 @@ state RELEASE_ATTACK_GRENADE_SECONDARY
 	{
 		steilhandgranate_crouch_fire_secondary	: IS_WEAPON_ACTIVE "mainhand" "Stielhandgranate" POSITION_TYPE "crouching"
 		steilhandgranate_stand_fire_secondary	: IS_WEAPON_ACTIVE "mainhand" "Stielhandgranate"
+
+		steilhandgranate_crouch_fire_secondary	: IS_WEAPON_ACTIVE "mainhand" "Nebelhandgranate" POSITION_TYPE "crouching"
+		steilhandgranate_stand_fire_secondary	: IS_WEAPON_ACTIVE "mainhand" "Nebelhandgranate"
 	
+		steilhandgranate_crouch_fire_secondary	: IS_WEAPON_ACTIVE "mainhand" "RDG-1 Smoke Grenade" POSITION_TYPE "crouching"
+		steilhandgranate_stand_fire_secondary	: IS_WEAPON_ACTIVE "mainhand" "RDG-1 Smoke Grenade"
+
+		steilhandgranate_crouch_fire_secondary	: IS_WEAPON_ACTIVE "mainhand" "M18 Smoke Grenade" POSITION_TYPE "crouching"
+		steilhandgranate_stand_fire_secondary	: IS_WEAPON_ACTIVE "mainhand" "M18 Smoke Grenade"
+
 		grenade_crouch_fire_secondary			: POSITION_TYPE "crouching"
 		grenade_stand_fire_secondary			: default
 	}
 
 	states
 	{
-		STAND 				: IS_WEAPON_ACTIVE "Error" "grenade"
-		STAND 				: !HAS_WEAPON
-
 		RELEASE_KILLED_FRAG : KILLED MIN_CHARGE_TIME_MET "mainhand" // killed before the grenade was released
 		STAND	 			: KILLED
 
@@ -803,13 +955,16 @@ state PUTAWAY_SMG
 		mp40_crouch_lower	: IS_WEAPON_ACTIVE "mainhand" "MP40" POSITION_TYPE "crouching"
 		mp40_stand_lower	: IS_WEAPON_ACTIVE "mainhand" "MP40"
 
+		sten_crouch_lower	: IS_WEAPON_ACTIVE "mainhand" "Sten Mark II" POSITION_TYPE "crouching"
+		sten_stand_lower	: IS_WEAPON_ACTIVE "mainhand" "Sten Mark II"
+
 		smg_crouch_lower	: POSITION_TYPE "crouching"
 		smg_stand_lower		: default
 	}
 	legs
 	{
 		mp40_stand_idle		: IS_WEAPON_ACTIVE "mainhand" "MP40" ON_LADDER
-
+		sten_stand_idle		: IS_WEAPON_ACTIVE "mainhand" "Sten Mark II" ON_LADDER
 		smg_stand_idle		: ON_LADDER
 	}
 	
@@ -858,6 +1013,9 @@ state PUTAWAY_GRENADE
 	{
 		steilhandgranate_crouch_lower	: IS_WEAPON_ACTIVE "mainhand" "Stielhandgranate" POSITION_TYPE "crouching"
 		steilhandgranate_stand_lower	: IS_WEAPON_ACTIVE "mainhand" "Stielhandgranate"
+
+		steilhandgranate_crouch_lower	: IS_WEAPON_ACTIVE "mainhand" "Nebelhandgranate" POSITION_TYPE "crouching"
+		steilhandgranate_stand_lower	: IS_WEAPON_ACTIVE "mainhand" "Nebelhandgranate"
 	
 		grenade_crouch_lower			: POSITION_TYPE "crouching"
 		grenade_stand_lower				: default
@@ -865,7 +1023,8 @@ state PUTAWAY_GRENADE
 	legs
 	{
 		steilhandgranate_stand_idle		: IS_WEAPON_ACTIVE "mainhand" "Stielhandgranate"
-		
+		steilhandgranate_stand_idle		: IS_WEAPON_ACTIVE "mainhand" "Nebelhandgranate"
+		grenade_stand_idle				: IS_WEAPONCLASS_ACTIVE "mainhand" "grenade"
 		grenade_stand_idle				: ON_LADDER
 	}
 	
@@ -921,7 +1080,6 @@ state RAISE_WEAPON
 
 	entrycommands
 	{
-		//exec global/modelfix.scr
 		viewmodelanim pullout
 
 		// just to make sure nothing funky's 
@@ -992,6 +1150,9 @@ state RAISE_SMG
 		mp40_crouch_raise	: IS_NEW_WEAPON "mainhand" "MP40" POSITION_TYPE "crouching"
 		mp40_stand_raise	: IS_NEW_WEAPON "mainhand" "MP40"
 
+		sten_crouch_raise	: IS_NEW_WEAPON "mainhand" "Sten Mark II" POSITION_TYPE "crouching"
+		sten_stand_raise	: IS_NEW_WEAPON "mainhand" "Sten Mark II"
+
 		smg_crouch_raise	: POSITION_TYPE "crouching"
 		smg_stand_raise		: default
 	}
@@ -1060,6 +1221,9 @@ state RAISE_GRENADE
 	{
 		steilhandgranate_crouch_raise	: IS_NEW_WEAPON "mainhand" "Stielhandgranate" POSITION_TYPE "crouching"
 		steilhandgranate_stand_raise	: IS_NEW_WEAPON "mainhand" "Stielhandgranate"
+
+		steilhandgranate_crouch_raise	: IS_NEW_WEAPON "mainhand" "Nebelhandgranate" POSITION_TYPE "crouching"
+		steilhandgranate_stand_raise	: IS_NEW_WEAPON "mainhand" "Nebelhandgranate"
 	
 		grenade_crouch_raise	: POSITION_TYPE "crouching"
 		grenade_stand_raise		: default
@@ -1149,6 +1313,8 @@ state RELOAD_WEAPON
 		RELOAD_SPRINGFIELD	: IS_WEAPON_ACTIVE "mainhand" "Springfield '03 Sniper"
 		RELOAD_SPRINGFIELD	: IS_WEAPON_ACTIVE "mainhand" "KAR98 - Sniper"
 		RELOAD_SHOTGUN		: IS_WEAPON_ACTIVE "mainhand" "Shotgun"
+		RELOAD_NAGANTREV	: IS_WEAPON_ACTIVE "mainhand" "Nagant Revolver"
+		RELOAD_WEBLEY		: IS_WEAPON_ACTIVE "mainhand" "Webley Revolver"
 
 		RELOAD_PISTOL		: IS_WEAPONCLASS_ACTIVE "mainhand" "pistol"
 		RELOAD_RIFLE		: IS_WEAPONCLASS_ACTIVE "mainhand" "rifle"
@@ -1175,6 +1341,10 @@ state RELOAD_RIFLE
 	action
 	{
 		kar98_reload		: IS_WEAPON_ACTIVE "mainhand" "Mauser KAR 98K"
+		enfield_reload		: IS_WEAPON_ACTIVE "mainhand" "Lee-Enfield"
+		svt_reload		: IS_WEAPON_ACTIVE "mainhand" "SVT 40"
+		mosin_reload		: IS_WEAPON_ACTIVE "mainhand" "Mosin Nagant Rifle"
+		g43_reload		: IS_WEAPON_ACTIVE "mainhand" "G 43"
 		rifle_reload		: default
 	}
 
@@ -1186,6 +1356,9 @@ state RELOAD_RIFLE
 		
 		RELOAD_INTERUPTED	: IS_USING_VEHICLE
 		RELOAD_INTERUPTED	: IS_USING_TURRET
+
+		// Note that this is ok since sniper rifles don't come through here
+		//RELOAD_INTERUPTED_SECONDARYATTACK	: +ATTACK_SECONDARY
 	}
 }
 
@@ -1201,6 +1374,8 @@ state RELOAD_SMG
 	action
 	{
 		mp40_reload			: IS_WEAPON_ACTIVE "mainhand" "MP40"
+		sten_reload			: IS_WEAPON_ACTIVE "mainhand" "Sten Mark II"
+		ppsh_reload			: IS_WEAPON_ACTIVE "mainhand" "PPSH SMG"
 		smg_reload			: default
 	}
 
@@ -1212,6 +1387,8 @@ state RELOAD_SMG
 		
 		RELOAD_INTERUPTED_CORRECT_ATTACHMENTS	: IS_USING_VEHICLE
 		RELOAD_INTERUPTED_CORRECT_ATTACHMENTS	: IS_USING_TURRET
+
+		//RELOAD_INTERUPTED_CORRECT_ATTACHMENTS_SECONDARYATTACK	: +ATTACK_SECONDARY
 	}
 }
 
@@ -1227,6 +1404,7 @@ state RELOAD_MG
 	action
 	{
 		mp44_reload			: IS_WEAPON_ACTIVE "mainhand" "StG 44"
+		fg42_reload			: IS_WEAPON_ACTIVE "mainhand" "FG 42"
 		mg_reload			: default
 	}
 
@@ -1238,6 +1416,8 @@ state RELOAD_MG
 		
 		RELOAD_INTERUPTED_CORRECT_ATTACHMENTS	: IS_USING_VEHICLE
 		RELOAD_INTERUPTED_CORRECT_ATTACHMENTS	: IS_USING_TURRET
+
+		//RELOAD_INTERUPTED_CORRECT_ATTACHMENTS_SECONDARYATTACK	: +ATTACK_SECONDARY
 	}
 }
 
@@ -1265,6 +1445,234 @@ state RELOAD_PISTOL
 		
 		RELOAD_INTERUPTED_CORRECT_ATTACHMENTS	: IS_USING_VEHICLE
 		RELOAD_INTERUPTED_CORRECT_ATTACHMENTS	: IS_USING_TURRET
+
+		//RELOAD_INTERUPTED_CORRECT_ATTACHMENTS_SECONDARYATTACK	: +ATTACK_SECONDARY
+	}
+}
+
+// start of reloading the webley revolver
+state RELOAD_WEBLEY
+{
+	movetype legs
+
+	entrycommands
+	{
+		viewmodelanim reload
+	}
+
+	action
+	{
+		WEBLEY_reload_start	: default
+	}
+
+	states
+	{
+		STAND	 				: KILLED
+		RELOAD_WEBLEY_SINGLE	: ANIMDONE_TORSO
+		RELOAD_INTERUPTED		: NEW_WEAPON
+		
+		RELOAD_INTERUPTED		: IS_USING_VEHICLE
+		RELOAD_INTERUPTED		: IS_USING_TURRET
+
+		//RELOAD_INTERUPTED_SECONDARYATTACK	: +ATTACK_SECONDARY
+	}
+}
+
+// loads in a single webley revolver bullet
+state RELOAD_WEBLEY_SINGLE
+{
+	movetype legs
+	
+	entrycommands
+	{
+		viewmodelanim reload_single 1
+	}
+	
+	action
+	{
+		WEBLEY_reload_loop			: default
+	}
+	
+	states
+	{
+		STAND	 						: KILLED
+//		RELOAD_INTERUPTED				: NEW_WEAPON
+		RELOAD_WEBLEY_END			: NEW_WEAPON
+		
+		RELOAD_INTERUPTED_CORRECT_ATTACHMENTS	: IS_USING_VEHICLE
+		RELOAD_INTERUPTED_CORRECT_ATTACHMENTS	: IS_USING_TURRET
+
+		//RELOAD_INTERUPTED_CORRECT_ATTACHMENTS_SECONDARYATTACK	: +ATTACK_SECONDARY
+
+		// allow early out
+		RELOAD_WEBLEY_END			: +ATTACK_PRIMARY HAS_AMMO_IN_CLIP "mainhand" !RELOAD
+		RELOAD_WEBLEY_END			: PUTAWAYMAIN
+		
+		RELOAD_WEBLEY_CHECK_CONTINUE	: ANIMDONE_TORSO
+	}
+}
+
+// this check to see if the webley revolver should continue reloading, or if it's done
+state RELOAD_WEBLEY_CHECK_CONTINUE
+{
+	movetype legs
+
+	entrycommands
+	{
+		reload // this makes the weapon want to continue reloading if it can
+	}
+	
+	action
+	{
+		none					: default
+	}
+	
+	states
+	{
+		RELOAD_WEBLEY_SINGLE	: RELOAD
+
+//		RELOAD_INTERUPTED		: NEW_WEAPON
+		
+		RELOAD_WEBLEY_END		: default
+	}
+}
+
+// this is the end of the webley revolver reload sequence
+state RELOAD_WEBLEY_END
+{
+	movetype legs
+	
+	entrycommands
+	{
+		viewmodelanim reload_end
+		
+		// just in case we interupted a bullet reload
+//		correctweaponattachments
+	}
+	
+	action
+	{
+		WEBLEY_reload_end	: default
+	}
+
+	states
+	{
+		STAND	 				: KILLED
+		STAND	 				: ANIMDONE_TORSO
+//		RELOAD_INTERUPTED		: NEW_WEAPON
+	}
+}
+
+// start of reloading the nagant revolver
+state RELOAD_NAGANTREV
+{
+	movetype legs
+
+	entrycommands
+	{
+		viewmodelanim reload
+	}
+
+	action
+	{
+		nagantrev_reload_start	: default
+	}
+
+	states
+	{
+		STAND	 				: KILLED
+		RELOAD_NAGANTREV_SINGLE	: ANIMDONE_TORSO
+		RELOAD_INTERUPTED		: NEW_WEAPON
+		
+		RELOAD_INTERUPTED		: IS_USING_VEHICLE
+		RELOAD_INTERUPTED		: IS_USING_TURRET
+
+		//RELOAD_INTERUPTED_SECONDARYATTACK	: +ATTACK_SECONDARY
+	}
+}
+
+// loads in a single nagant revolver bullet
+state RELOAD_NAGANTREV_SINGLE
+{
+	movetype legs
+	
+	entrycommands
+	{
+		viewmodelanim reload_single 1
+	}
+	
+	action
+	{
+		nagantrev_reload_loop			: default
+	}
+	
+	states
+	{
+		STAND	 						: KILLED
+//		RELOAD_INTERUPTED				: NEW_WEAPON
+		RELOAD_NAGANTREV_END			: NEW_WEAPON
+		
+		RELOAD_INTERUPTED_CORRECT_ATTACHMENTS	: IS_USING_VEHICLE
+		RELOAD_INTERUPTED_CORRECT_ATTACHMENTS	: IS_USING_TURRET
+
+		//RELOAD_INTERUPTED_CORRECT_ATTACHMENTS_SECONDARYATTACK	: +ATTACK_SECONDARY
+
+		// allow early out
+		RELOAD_NAGANTREV_END			: +ATTACK_PRIMARY HAS_AMMO_IN_CLIP "mainhand" !RELOAD
+		RELOAD_NAGANTREV_END			: PUTAWAYMAIN
+		
+		RELOAD_NAGANTREV_CHECK_CONTINUE	: ANIMDONE_TORSO
+	}
+}
+
+// this check to see if the nagant revolver should continue reloading, or if it's done
+state RELOAD_NAGANTREV_CHECK_CONTINUE
+{
+	movetype legs
+
+	entrycommands
+	{
+		reload // this makes the weapon want to continue reloading if it can
+	}
+	
+	action
+	{
+		none					: default
+	}
+	
+	states
+	{
+		RELOAD_NAGANTREV_SINGLE	: RELOAD
+
+//		RELOAD_INTERUPTED		: NEW_WEAPON
+		
+		RELOAD_NAGANTREV_END		: default
+	}
+}
+
+// this is the end of the nagant revolver reload sequence
+state RELOAD_NAGANTREV_END
+{
+	movetype legs
+	
+	entrycommands
+	{
+		viewmodelanim reload_end
+		
+		// just in case we interupted a bullet reload
+//		correctweaponattachments
+	}
+	
+	action
+	{
+		nagantrev_reload_end	: default
+	}
+
+	states
+	{
+		STAND	 				: KILLED
+		STAND	 				: ANIMDONE_TORSO
+//		RELOAD_INTERUPTED		: NEW_WEAPON
 	}
 }
 
@@ -1280,6 +1688,7 @@ state RELOAD_GRENADE
 	action
 	{
 		steilhandgranate_reload	: IS_WEAPON_ACTIVE "mainhand" "Stielhandgranate"
+		steilhandgranate_reload	: IS_WEAPON_ACTIVE "mainhand" "Nebelhandgranate"
 		grenade_reload			: default
 	}
 
@@ -1451,6 +1860,8 @@ state RELOAD_SHOTGUN
 		
 		RELOAD_INTERUPTED	: IS_USING_VEHICLE
 		RELOAD_INTERUPTED	: IS_USING_TURRET
+
+		//RELOAD_INTERUPTED_SECONDARYATTACK	: +ATTACK_SECONDARY
 	}
 }
 
@@ -1477,6 +1888,8 @@ state RELOAD_SHOTGUN_SINGLE
 		
 		RELOAD_INTERUPTED_CORRECT_ATTACHMENTS	: IS_USING_VEHICLE
 		RELOAD_INTERUPTED_CORRECT_ATTACHMENTS	: IS_USING_TURRET
+
+		//RELOAD_INTERUPTED_CORRECT_ATTACHMENTS_SECONDARYATTACK	: +ATTACK_SECONDARY
 
 		// allow early out
 		RELOAD_SHOTGUN_END				: +ATTACK_PRIMARY HAS_AMMO_IN_CLIP "mainhand" !RELOAD
@@ -1558,150 +1971,24 @@ state RELOAD_INTERUPTED_CORRECT_ATTACHMENTS
 	}
 }
 
-//==============================================================================
-//==============================================================================
-//
-// Pain
-//
-//==============================================================================
-
-state PAIN
+state RELOAD_INTERUPTED_SECONDARYATTACK
 {
-	movetype legs
-
- 	entrycommands
-	{
-		// clear the pain out
-		nextpaintime 0.05
-	}
-
 	states
 	{
-		PAIN_SHOTGUN	: IS_WEAPON_ACTIVE "mainhand" "Shotgun"
-
-		PAIN_PISTOL		: IS_WEAPONCLASS_ACTIVE "mainhand" "pistol"
-		PAIN_RIFLE		: IS_WEAPONCLASS_ACTIVE "mainhand" "rifle"
-		PAIN_SMG		: IS_WEAPONCLASS_ACTIVE "mainhand" "smg"
-		PAIN_MG			: IS_WEAPONCLASS_ACTIVE "mainhand" "mg"
-		PAIN_GRENADE	: IS_WEAPONCLASS_ACTIVE "mainhand" "grenade"
-		PAIN_HEAVY		: IS_WEAPONCLASS_ACTIVE "mainhand" "heavy"
-
-		PAIN_RIFLE		: default	
+		CHECK_SECONDARY_ATTACK	: default
 	}
 }
 
-state PAIN_SHOTGUN
+state RELOAD_INTERUPTED_CORRECT_ATTACHMENTS_SECONDARYATTACK
 {
-	action
+	entrycommands
 	{
-		shotgun_pain_ducked		: POSITION_TYPE "crouching"
-		shotgun_pain			: default
+		correctweaponattachments
 	}
-
+	
 	states
 	{
-		PAIN_WAIT_TILL_DONE		: default
-	}
-
-}
-
-state PAIN_PISTOL
-{
-	action
-	{
-		pistol_pain_ducked		: POSITION_TYPE "crouching"
-		pistol_pain				: default
-	}
-
-	states
-	{
-		PAIN_WAIT_TILL_DONE		: default
-	}
-}
-
-state PAIN_RIFLE
-{
-	action
-	{
-		rifle_pain_ducked		: POSITION_TYPE "crouching"
-		rifle_pain				: default
-	}
-
-	states
-	{
-		PAIN_WAIT_TILL_DONE		: default
-	}
-}
-
-state PAIN_SMG
-{
-	action
-	{
-		smg_pain_ducked			: POSITION_TYPE "crouching"
-		smg_pain				: default
-	}
-
-	states
-	{
-		PAIN_WAIT_TILL_DONE		: default
-	}
-}
-
-state PAIN_MG
-{
-	action
-	{
-		mg_pain_ducked		: POSITION_TYPE "crouching"
-		mg_pain				: default
-	}
-
-	states
-	{
-		PAIN_WAIT_TILL_DONE		: default
-	}
-}
-
-state PAIN_GRENADE
-{
-	action
-	{
-		mg_pain_ducked		: POSITION_TYPE "crouching"
-		mg_pain				: default
-	}
-
-	states
-	{
-		PAIN_WAIT_TILL_DONE		: default
-	}
-}
-
-state PAIN_HEAVY
-{
-	action
-	{
-		mg_pain_ducked		: POSITION_TYPE "crouching"
-		mg_pain				: default
-	}
-
-	states
-	{
-		PAIN_WAIT_TILL_DONE		: default
-	}
-}
-
-state PAIN_WAIT_TILL_DONE
-{
-	states
-	{
-		KILLED							: KILLED
-		PAIN							: PAIN
-
-		// allow the player to interupt a pain animation with an attack
-		CHECK_PRIMARY_ATTACK_SEMIAUTO	: +ATTACK_PRIMARY IS_WEAPON_SEMIAUTO "mainhand" IS_WEAPON_READY_TO_FIRE "mainhand"
-		CHECK_PRIMARY_ATTACK_FULLAUTO	: ATTACK_PRIMARY !IS_WEAPON_SEMIAUTO "mainhand" IS_WEAPON_READY_TO_FIRE "mainhand"
-		CHECK_SECONDARY_ATTACK			: +ATTACK_SECONDARY
-		
-		STAND							: ANIMDONE_TORSO
+		CHECK_SECONDARY_ATTACK	: default
 	}
 }
 
@@ -1744,8 +2031,8 @@ state KILLED_RUNNING
 	action
 	{
 		death_knockedup		: PAIN_DIRECTION "front" PAIN_THRESHOLD "50" CHANCE "30"
-		death_chest			: PAIN_DIRECTION "front" PAIN_THRESHOLD "50"
-		death_run			: default
+		death_chest		: PAIN_DIRECTION "front" PAIN_THRESHOLD "50"
+		death_run		: default
 	}
 	
 	states
@@ -1776,21 +2063,21 @@ state KILLED_STANDING
 		KILLED_LOWER_TORSO	: PAIN_LOCATION "torso_lower"
 		KILLED_UPPER_TORSO	: PAIN_LOCATION "torso_mid"
 		KILLED_UPPER_TORSO	: PAIN_LOCATION "torso_upper"
-		KILLED_NECK			: PAIN_LOCATION "neck"
-		KILLED_HEAD			: PAIN_LOCATION "head"
-		KILLED_HEAD			: PAIN_LOCATION "helmet"
+		KILLED_NECK		: PAIN_LOCATION "neck"
+		KILLED_HEAD		: PAIN_LOCATION "head"
+		KILLED_HEAD		: PAIN_LOCATION "helmet"
 		KILLED_RIGHT_ARM	: PAIN_LOCATION "r_arm_upper"
 		KILLED_RIGHT_ARM	: PAIN_LOCATION "r_arm_lower"
 		KILLED_RIGHT_ARM	: PAIN_LOCATION "r_hand"
 		KILLED_LEFT_ARM		: PAIN_LOCATION "l_arm_upper"
 		KILLED_LEFT_ARM		: PAIN_LOCATION "l_arm_lower"
 		KILLED_LEFT_ARM		: PAIN_LOCATION "l_hand"
-		KILLED_LEG			: PAIN_LOCATION "r_leg_upper"
-		KILLED_LEG			: PAIN_LOCATION "r_leg_lower"
-		KILLED_LEG			: PAIN_LOCATION "r_foot"
-		KILLED_LEG			: PAIN_LOCATION "l_leg_upper"
-		KILLED_LEG			: PAIN_LOCATION "l_leg_lower"
-		KILLED_LEG			: PAIN_LOCATION "l_foot"
+		KILLED_LEG		: PAIN_LOCATION "r_leg_upper"
+		KILLED_LEG		: PAIN_LOCATION "r_leg_lower"
+		KILLED_LEG		: PAIN_LOCATION "r_foot"
+		KILLED_LEG		: PAIN_LOCATION "l_leg_upper"
+		KILLED_LEG		: PAIN_LOCATION "l_leg_lower"
+		KILLED_LEG		: PAIN_LOCATION "l_foot"
 
 		KILLED_UPPER_TORSO	: default
 	}
@@ -1913,19 +2200,6 @@ state KILLED_LEG
 	}
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 //state KILLED_GENERIC
 //{
 //	action
@@ -1995,7 +2269,6 @@ state USE_LADDER
 	
 	entrycommands
 	{
-		exec global/check_team_swap.scr
 		safeholster 1 // put our weapon away
 		attachtoladder // gets the ladder we're going to be climbing
 	}
@@ -2120,11 +2393,6 @@ state FINISHED_GET_OFF_LADDER
 	
 	entrycommands
 	{
-		exec global/check_team_swap.scr "end"
-	}
-	
-	entrycommands
-	{
 		unattachfromladder
 		safeholster 0 // pull weapon back out if we put it away to get on the ladder
 	}
@@ -2138,24 +2406,19 @@ state FINISHED_GET_OFF_LADDER
 // same as FINISHED_GET_OFF_LADDER, except that the player is jumping off
 state JUMP_OFF_LADDER
 {
-    movetype legs
-    
-    entrycommands
-    {
-        exec global/check_team_swap.scr "end"
-        unattachfromladder
-        forcelegsstate FALL
+	movetype legs
+	
+	entrycommands
+	{
+		unattachfromladder
+		safeholster 0 // pull weapon back out if we put it away to get on the ladder
+		jumpxy -70 0 150
+	}
 
-
-        safeholster 0 // pull weapon back out if we put it away to get on the ladder
-        jumpxy -70 0 150
-    }
-
-
-    states
-    {
-        STAND            : default
-    }
+	states
+	{
+		STAND			: default
+	}
 }
 
 // idling on a ladder with the left hand high
@@ -2441,7 +2704,39 @@ state VEHICLE_START
 	}
 }
 
-state VEHICLE_IDLE
+state VEHICLE_TURRET_IDLE
+{
+	entrycommands
+	{
+		modheight "duck"
+		moveposflags "crouching"
+	}
+
+	exitcommands
+	{
+		modheight "stand"
+		moveposflags "standing"
+	}
+
+	movetype anim
+	
+	action
+	{
+		aagun_idle	: VEHICLE_TYPE "aagun"
+		flak88_idle	: VEHICLE_TYPE "flak88"
+		nebelwerfer_idle : VEHICLE_TYPE "nebelwerfer"
+		granatwerfer_idle : VEHICLE_TYPE "granatwerfer"
+		vehicle_idle	: default
+	}
+	
+	states
+	{
+		VEHICLE_USE		: +USE
+		STAND			: !IS_USING_VEHICLE
+	}
+}
+
+state VEHICLE_NORMAL_IDLE
 {
 	movetype anim
 	
@@ -2454,6 +2749,19 @@ state VEHICLE_IDLE
 	{
 		VEHICLE_USE		: +USE
 		STAND			: !IS_USING_VEHICLE
+	}
+}
+
+
+state VEHICLE_IDLE
+{
+	states
+	{
+		VEHICLE_TURRET_IDLE	: VEHICLE_TYPE "aagun"
+		VEHICLE_TURRET_IDLE	: VEHICLE_TYPE "flak88"
+		VEHICLE_TURRET_IDLE	: VEHICLE_TYPE "nebelwerfer"
+		VEHICLE_TURRET_IDLE	: VEHICLE_TYPE "granatwerfer"
+		VEHICLE_NORMAL_IDLE	: default
 	}
 }
 
@@ -2500,10 +2808,12 @@ state TURRET_PUTAWAY
 
 state TURRET_START
 {
-	entrycommands
-	{
-		exec global/check_team_swap.scr 
-	}
+//	movetype anim
+	
+//	action
+//	{
+//		turret_idle		: default
+//	}
 	
 	states
 	{
@@ -2518,27 +2828,18 @@ state TURRET_IDLE
 	
 	action
 	{
+		mg42tripod_crouch_aim_straight_straight	: IS_WEAPON_ACTIVE "mainhand" "Packed MG42 Turret"
 		turret_idle		: default
 	}
 	
 	states
 	{
-		TURRET_END		: !IS_USING_TURRET
+//		TURRET_USE		: +USE
+//		GENERIC_USE		: +USE
+		STAND			: !IS_USING_TURRET
 	}
 }
-state TURRET_END
-{
-	entrycommands
-	{
-		exec global/check_team_swap.scr "end"
-	}
 
-	states
-	{
-
-		STAND			: default
-	}
-}
 //state TURRET_USE
 //{
 //	movetype anim
