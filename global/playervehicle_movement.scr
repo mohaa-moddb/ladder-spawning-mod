@@ -1,0 +1,46 @@
+main local.state:
+
+	switch(local.state)
+	{
+		case "IN_VEHICLE":
+			self.driving_state_forward = 0
+			self.driving_state_backward = 0
+			self.driving_state_left = 0
+			self.driving_state_right = 0
+			break
+		case "FORWARD_RUN":
+			self.driving_state_forward = 1
+			self.driving_state_backward = 0
+			self.driving_state_left = 0
+			self.driving_state_right = 0
+			break
+		case "BACKWARD_RUN":
+			self.driving_state_forward = 0
+			self.driving_state_backward = 1
+			self.driving_state_left = 0
+			self.driving_state_right = 0
+			break
+		case "LEFT_RUN":
+			self.driving_state_forward = 0
+			self.driving_state_backward = 0
+			self.driving_state_left = 1
+			self.driving_state_right = 0
+			break
+		case "RIGHT_RUN":
+			self.driving_state_forward = 0
+			self.driving_state_backward = 0
+			self.driving_state_left = 0
+			self.driving_state_right = 1
+			break
+		case "JUMP":
+			self.driving_state_forward = 0
+			self.driving_state_backward = 0
+			self.driving_state_left = 0
+			self.driving_state_right = 0
+			self.driving_state_jump = 1
+			break
+		default:
+			break
+	}
+	if(local.state == NIL && self.passenger == 1) { self forcetorsostate VEHICLE_PASSENGER }
+end
