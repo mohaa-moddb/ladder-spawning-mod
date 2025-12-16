@@ -10,21 +10,6 @@
 // Example2: local.ladder = thread global/spawnladder.scr::main ( -200 300 0 ) 180 500 13.5 1 1 3 ( 0 0 1 )
 //
 //-----------------------------------------------------------------------------
-//
-// This mod will not work outside of UBER MODS unless nangla_aa_torso.st is also included, or unless another mike_torso.st file is modified.
-// In another mod's mike_torso.st (or similar torso.st), remove all 8 CAN_CLIMB_DOWN_LADDER, CAN_CLIMB_UP_LADDER conditions from these 2 states: LADDER_IDLE_LEFT, LADDER_IDLE_RIGHT.
-//
-// Turn these...
-//        LADDER_UP_RIGHT             : FORWARD LOOKING_UP "-30" CAN_CLIMB_UP_LADDER
-//        LADDER_UP_RIGHT             : BACKWARD !LOOKING_UP "-30" CAN_CLIMB_UP_LADDER
-//        LADDER_DOWN_LEFT            : FORWARD !LOOKING_UP "-30" CAN_CLIMB_DOWN_LADDER
-//        LADDER_DOWN_LEFT            : BACKWARD LOOKING_UP "-30" CAN_CLIMB_DOWN_LADDER
-//
-// into these...
-//        LADDER_UP_RIGHT             : FORWARD LOOKING_UP "-30"
-//        LADDER_UP_RIGHT             : BACKWARD !LOOKING_UP "-30"
-//        LADDER_DOWN_LEFT            : FORWARD !LOOKING_UP "-30"
-//        LADDER_DOWN_LEFT            : BACKWARD LOOKING_UP "-30"
 
 main local.origin local.angle local.height local.width local.thickness local.spawn_solidclip local.spawn_laser local.laser_color:
 
@@ -92,25 +77,34 @@ end local.ladder
 ladder:
 
 	local.player = parm.other
-	local.pangle = local.player.angle
-	local.langle = self.angle
 	local.vangle = local.player.viewangles[0]
-	if(local.pangle < 0) { local.pangle += 360 } // keep player angle & ladder angle in 0 - 360 format.
-	if(local.langle < 0) { local.langle += 360 }
-	local.lower = local.langle - 70
-	local.upper = local.langle + 70
-	if(local.lower < 0) { local.lower += 360; local.fliplow = 1 }
-	if(local.upper > 360) { local.upper -= 360; local.flipup = 1 }
 
-	if(local.player == NULL || local.player.climbing_ladder == 1 || local.player.dead == 1 || !isalive local.player || local.player.dmteam == "spectator" || local.player getmovement == "standing") { end }
+	if(local.player == NULL || local.player.climbing_ladder == 1 || local.player.dead == 1 || !isalive local.player || local.player.dmteam == "spectator" || local.player.velocity == ( 0 0 0 )) { end }
 	if((local.vangle > -30 && local.vangle < 30) || local.player.origin[2] > self.origin[2] + self.height + 18 || (local.player.origin[2] > self.origin[2] + self.height - 50 && local.vangle < 40)) { end }
+	if(local.player getposition == "offground" && local.player.useheld != 1) { end } // only latch onto ladder while falling if player is holding USE(e).
 
+	local.langle = self.angle
+	if(local.langle < 0) { local.langle += 360 } // keep langle & pangle in 0-360 range.
+	else if(local.langle > 360) { local.langle -= 360 }
+
+	local.pangle = local.player.viewangles[1]
 	if(local.player.origin[2] > self.origin[2] + self.height - 50 && local.vangle >= 40) { local.pangle -= 180 } // flip pangle by 180 degrees if player is at the top of the ladder.
 	if(local.pangle < 0) { local.pangle += 360 }
-	if(local.fliplow == 1 && local.pangle > local.lower) { end }
-	if(local.fliplow != 1 && local.pangle < local.lower) { end }
-	if(local.flipup == 1 && local.pangle < local.upper) { end }
-	if(local.flipup != 1 && local.pangle > local.upper) { end }
+	else if(local.pangle > 360) { local.pangle -= 360 }
+
+	local.lower = local.langle - 70
+	local.upper = local.langle + 70
+	if(local.lower < 0) { local.add360 = 1 }
+	if(local.upper > 360) { local.sub360 = 1 }
+	if(local.add360 == 1)
+	{
+		if(local.pangle < local.lower + 360 && local.pangle > local.upper) { end } // if upper = 385 for example, pangle must also be < 25.
+	}
+	else if(local.sub360 == 1)
+	{
+		if(local.pangle < local.lower && local.pangle > local.upper - 360) { end } // if lower = -25 for example, pangle must also be > 335.
+	}
+	else if(local.pangle < local.lower || local.pangle > local.upper) { end } // if upper & lower are within 0-360 range, check if pangle is between them as normal.
 
 	local.player.angle = self.angle
 	local.player face ( local.player.viewangles[0] self.angle local.player.viewangles[2] )
@@ -131,7 +125,7 @@ end
 status_check local.ladder:
 
 	local.team = self.dmteam
-	while(isalive self && self.dmteam == local.team && self.dead != 1 && self istouching local.ladder)
+	while(isalive self && self.dmteam == local.team && self.dead != 1 && self.legs_state_using_ladder == 1) // "ladder_on" comes from entrycommands in nangle_aa_torso.st & legs_movement.scr.
 	{
 		self.angle = local.ladder.angle
 		waitframe

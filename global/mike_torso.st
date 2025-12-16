@@ -31,7 +31,7 @@ state STAND
 	camera behind
 
 	entrycommands
-	{		
+	{
 		viewmodelanim idle
 	}
 	
@@ -46,7 +46,7 @@ state STAND
 		PAIN					: PAIN
 
 		VEHICLE_START			: IS_USING_VEHICLE
-		TURRET_START			: IS_USING_TURRET 
+		TURRET_START			: IS_USING_TURRET
 
 		// if we're on a ladder, make sure we're climbing the ladder
 		LADDER_IDLE_LEFT		: ON_LADDER
@@ -73,7 +73,7 @@ state STAND
 		// auto use of ladder when at the top (AT_LADDER check is last because it does a trace)
 		USE_LADDER				: ONGROUND FORWARD !LOOKING_UP "-35" !PUTAWAYMAIN !NEW_WEAPON !RELOAD !ATTACK_PRIMARY !ATTACK_SECONDARY AT_LADDER CHECK_HEIGHT "stand"
 //		GENERIC_USE				: ONGROUND +USE
-	
+
 		// This is not functional for the prototype, but is here as a placeholder for
 		// future functionality.
 		// While the player can only fire weapons with his right hand, he can switch them 
@@ -125,7 +125,7 @@ state CHECK_PRIMARY_ATTACK_FULLAUTO
 		ATTACK_MG_PRIMARY		: IS_WEAPONCLASS_READY_TO_FIRE "mainhand" "mg"
 //		ATTACK_ITEM_PRIMARY		: IS_WEAPONCLASS_READY_TO_FIRE "mainhand" "item"
 		
-//		STAND					: IS_WEAPON_ACTIVE "Error"  // Generates an error if no appropriate
+//		STAND					: IS_WEAPON_ACTIVE "Error" // Generates an error if no appropriate
 															// attack state is chosen
 		STAND					: !ATTACK_PRIMARY
 	}
@@ -568,12 +568,12 @@ state CHARGE_ATTACK_GRENADE
 
 	states
 	{
-		STAND 				: !HAS_WEAPON
 		STAND 				: IS_WEAPON_ACTIVE "Error" "grenade"
+		STAND 				: !HAS_WEAPON
+
 		TURRET_START			: IS_USING_TURRET 
 		RELEASE_KILLED_FRAG		: KILLED
-		RELEASE_ATTACK_GRENADE		: !ATTACK_PRIMARY MIN_CHARGE_TIME_MET "mainhand"
-
+		RELEASE_ATTACK_GRENADE	: !ATTACK_PRIMARY MIN_CHARGE_TIME_MET "mainhand"
 	}
 }
 
@@ -597,11 +597,13 @@ state RELEASE_ATTACK_GRENADE
 
 	states
 	{
+		STAND 				: IS_WEAPON_ACTIVE "Error" "grenade"
 		STAND 				: !HAS_WEAPON
-		STAND 						: IS_WEAPON_ACTIVE "Error" "grenade"
-		RELEASE_KILLED_FRAG				: KILLED MIN_CHARGE_TIME_MET "mainhand" // killed before the grenade was released
-		STAND	 					: KILLED
-		STAND 						: ANIMDONE_TORSO
+
+		RELEASE_KILLED_FRAG : KILLED MIN_CHARGE_TIME_MET "mainhand" // killed before the grenade was released
+		STAND	 			: KILLED
+
+		STAND 				: ANIMDONE_TORSO
 	}
 }
 
@@ -625,12 +627,12 @@ state CHARGE_ATTACK_GRENADE_SECONDARY
 
 	states
 	{
+		STAND 				: IS_WEAPON_ACTIVE "Error" "grenade"
 		STAND 				: !HAS_WEAPON
-		STAND 						: IS_WEAPON_ACTIVE "Error" "grenade"
-		TURRET_START					: IS_USING_TURRET 
-		RELEASE_KILLED_FRAG				: KILLED
-		RELEASE_ATTACK_GRENADE_SECONDARY		: !ATTACK_SECONDARY MIN_CHARGE_TIME_MET "mainhand"
 
+		TURRET_START							: IS_USING_TURRET
+		RELEASE_KILLED_FRAG						: KILLED
+		RELEASE_ATTACK_GRENADE_SECONDARY		: !ATTACK_SECONDARY MIN_CHARGE_TIME_MET "mainhand"
 	}
 }
 
@@ -654,10 +656,12 @@ state RELEASE_ATTACK_GRENADE_SECONDARY
 
 	states
 	{
-		STAND 				: !HAS_WEAPON
 		STAND 				: IS_WEAPON_ACTIVE "Error" "grenade"
-		RELEASE_KILLED_FRAG		: KILLED MIN_CHARGE_TIME_MET "mainhand" // killed before the grenade was released
+		STAND 				: !HAS_WEAPON
+
+		RELEASE_KILLED_FRAG : KILLED MIN_CHARGE_TIME_MET "mainhand" // killed before the grenade was released
 		STAND	 			: KILLED
+
 		STAND 				: ANIMDONE_TORSO
 	}
 }
@@ -917,28 +921,26 @@ state RAISE_WEAPON
 
 	entrycommands
 	{
-		exec global/ac/spawn_detect.scr 1
-		//exec global/modelfix.scr	// old script, keep this commented out to stop players crashing server using an fps expoit, giving this error:
-		viewmodelanim pullout		// "ERROR: Stopping due to possible infinite torso state loop"
-		//exec skill_balancer/player_thread.scr
+		//exec global/modelfix.scr
+		viewmodelanim pullout
+
 		// just to make sure nothing funky's 
 		// attached that shouldn't be.
 		correctweaponattachments
-		//exec weapon_limit/radar.scr "got_weap"
 	}
 
 	states
 	{
 		RAISE_PISTOL		: IS_NEW_WEAPONCLASS "mainhand" "pistol"
-		RAISE_RIFLE		: IS_NEW_WEAPONCLASS "mainhand" "rifle"
+		RAISE_RIFLE			: IS_NEW_WEAPONCLASS "mainhand" "rifle"
 		RAISE_GRENADE		: IS_NEW_WEAPONCLASS "mainhand" "grenade"
-		RAISE_SMG		: IS_NEW_WEAPONCLASS "mainhand" "smg"
-		RAISE_MG		: IS_NEW_WEAPONCLASS "mainhand" "mg"
+		RAISE_SMG			: IS_NEW_WEAPONCLASS "mainhand" "smg"
+		RAISE_MG			: IS_NEW_WEAPONCLASS "mainhand" "mg"
 //		RAISE_PISTOL		: IS_NEW_WEAPONCLASS "mainhand" "item" // hold all items like a pistol for now
-		RAISE_HEAVY		: IS_NEW_WEAPONCLASS "mainhand" "heavy"
+		RAISE_HEAVY			: IS_NEW_WEAPONCLASS "mainhand" "heavy"
 		RAISE_PAPERS		: IS_NEW_WEAPON "mainhand" "Papers"
 		
-//		RAISE_RIFLE		: default
+//		RAISE_RIFLE			: default
 		RAISE_NOANIM		: default
 	}
 }
@@ -1716,7 +1718,6 @@ state KILLED
 	entrycommands
 	{
 		nextpaintime -1 // allow all pain calls to work properly for death anim selection
-		exec global/killed.scr "times_killed"
 	}
 
 	states
@@ -1724,275 +1725,12 @@ state KILLED
 		EXPLOSION_KILLED	: PAIN_TYPE "explosion"
 		EXPLOSION_KILLED	: PAIN_TYPE "grenade"
 		EXPLOSION_KILLED	: PAIN_TYPE "rocket"
-		KILLED_MOD		: default
-	}
-}
-
-state KILLED_MOD
-{
-	states
-	{
-		KILLED_MOD_PELVIS	: PAIN_LOCATION "pelvis"
-		KILLED_MOD_TORSO_LOWER	: PAIN_LOCATION "torso_lower"
-		KILLED_MOD_TORSO_MID	: PAIN_LOCATION "torso_mid"
-		KILLED_MOD_TORSO_UPPER	: PAIN_LOCATION "torso_upper"
-		KILLED_MOD_NECK		: PAIN_LOCATION "neck"
-		KILLED_MOD_HEAD		: PAIN_LOCATION "head"
-		KILLED_MOD_HEAD		: PAIN_LOCATION "helmet"
-		KILLED_MOD_R_ARM_UPPER	: PAIN_LOCATION "r_arm_upper"
-		KILLED_MOD_R_ARM_LOWER	: PAIN_LOCATION "r_arm_lower"
-		KILLED_MOD_R_HAND	: PAIN_LOCATION "r_hand"
-		KILLED_MOD_L_ARM_UPPER		: PAIN_LOCATION "l_arm_upper"
-		KILLED_MOD_L_ARM_LOWER		: PAIN_LOCATION "l_arm_lower"
-		KILLED_MOD_L_HAND		: PAIN_LOCATION "l_hand"
-		KILLED_MOD_R_LEG_UPPER			: PAIN_LOCATION "r_leg_upper"
-		KILLED_MOD_R_LEG_LOWER			: PAIN_LOCATION "r_leg_lower"
-		KILLED_MOD_R_FOOT			: PAIN_LOCATION "r_foot"
-		KILLED_MOD_L_LEG_UPPER			: PAIN_LOCATION "l_leg_upper"
-		KILLED_MOD_L_LEG_LOWER			: PAIN_LOCATION "l_leg_lower"
-		KILLED_MOD_L_FOOT			: PAIN_LOCATION "l_foot"
-
-		KILLED_MOD_TORSO_UPPER	: default
-	}
-}
-
-state KILLED_MOD_PELVIS
-{
-	entrycommands
-	{
-		exec global/killed.scr "times_pelvis"
-	}
-
-	states
-	{
-		KILLED_GENERIC	: default
-	}
-}
-
-state KILLED_MOD_TORSO_LOWER
-{
-	entrycommands
-	{
-		exec global/killed.scr "torso_lower"
-	}
-
-	states
-	{
-		KILLED_GENERIC	: default
-	}
-}
-
-state KILLED_MOD_TORSO_MID
-{
-	entrycommands
-	{
-		exec global/killed.scr "torso_mid"
-	}
-
-	states
-	{
-		KILLED_GENERIC	: default
-	}
-}
-
-state KILLED_MOD_TORSO_UPPER
-{
-	entrycommands
-	{
-		exec global/killed.scr "torso_upper"
-	}
-
-	states
-	{
-		KILLED_GENERIC	: default
-	}
-}
-
-state KILLED_MOD_NECK
-{
-	entrycommands
-	{
-		exec global/killed.scr "neck"
-	}
-
-	states
-	{
-		KILLED_GENERIC	: default
-	}
-}
-
-state KILLED_MOD_HEAD
-{
-	entrycommands
-	{
-		exec global/killed.scr "head"
-	}
-
-	states
-	{
-		KILLED_GENERIC	: default
-	}
-}
-
-state KILLED_MOD_R_ARM_LOWER
-{
-	entrycommands
-	{
-		exec global/killed.scr "r_arm_lower"
-	}
-
-	states
-	{
-		KILLED_GENERIC	: default
-	}
-}
-
-state KILLED_MOD_R_HAND
-{
-	entrycommands
-	{
-		exec global/killed.scr "r_hand"
-	}
-
-	states
-	{
-		KILLED_GENERIC	: default
-	}
-}
-
-state KILLED_MOD_R_ARM_UPPER
-{
-	entrycommands
-	{
-		exec global/killed.scr "r_arm_upper"
-	}
-
-	states
-	{
-		KILLED_GENERIC	: default
-	}
-}
-
-state KILLED_MOD_L_ARM_UPPER
-{
-	entrycommands
-	{
-		exec global/killed.scr "l_arm_upper"
-	}
-
-	states
-	{
-		KILLED_GENERIC	: default
-	}
-}
-
-state KILLED_MOD_L_ARM_LOWER
-{
-	entrycommands
-	{
-		exec global/killed.scr "l_arm_lower"
-	}
-
-	states
-	{
-		KILLED_GENERIC	: default
-	}
-}
-
-state KILLED_MOD_L_HAND
-{
-	entrycommands
-	{
-		exec global/killed.scr "l_hand"
-	}
-
-	states
-	{
-		KILLED_GENERIC	: default
-	}
-}
-
-state KILLED_MOD_R_LEG_UPPER
-{
-	entrycommands
-	{
-		exec global/killed.scr "r_leg_upper"
-	}
-
-	states
-	{
-		KILLED_GENERIC	: default
-	}
-}
-
-state KILLED_MOD_R_LEG_LOWER
-{
-	entrycommands
-	{
-		exec global/killed.scr "r_leg_lower"
-	}
-
-	states
-	{
-		KILLED_GENERIC	: default
-	}
-}
-
-state KILLED_MOD_R_FOOT
-{
-	entrycommands
-	{
-		exec global/killed.scr "r_foot"
-	}
-
-	states
-	{
-		KILLED_GENERIC	: default
-	}
-}
-
-state KILLED_MOD_L_LEG_UPPER
-{
-	entrycommands
-	{
-		exec global/killed.scr "l_leg_upper"
-	}
-
-	states
-	{
-		KILLED_GENERIC	: default
-	}
-}
-
-state KILLED_MOD_L_LEG_LOWER
-{
-	entrycommands
-	{
-		exec global/killed.scr "l_leg_lower"
-	}
-
-	states
-	{
-		KILLED_GENERIC	: default
-	}
-}
-
-state KILLED_MOD_L_FOOT
-{
-	entrycommands
-	{
-		exec global/killed.scr "l_foot"
-	}
-
-	states
-	{
-		KILLED_GENERIC	: default
+		KILLED_GENERIC		: default
 	}
 }
 
 state KILLED_GENERIC
 {
-
 	states
 	{
 		KILLED_RUNNING		: FORWARD_VELOCITY "130"
@@ -2003,11 +1741,6 @@ state KILLED_GENERIC
 
 state KILLED_RUNNING
 {
-	entrycommands
-	{
-		exec global/killed.scr "times_running"
-	}
-
 	action
 	{
 		death_knockedup		: PAIN_DIRECTION "front" PAIN_THRESHOLD "50" CHANCE "30"
@@ -2023,11 +1756,6 @@ state KILLED_RUNNING
 
 state KILLED_CROUCHING
 {
-	entrycommands
-	{
-		exec global/killed.scr "times_crouching"
-	}
-
 	action
 	{
 		death_frontcrouch	: PAIN_DIRECTION "rear"
@@ -2042,11 +1770,6 @@ state KILLED_CROUCHING
 
 state KILLED_STANDING
 {
-	entrycommands
-	{
-		exec global/killed.scr "times_stood"
-	}
-
 	states
 	{
 		KILLED_LOWER_TORSO	: PAIN_LOCATION "pelvis"
@@ -2075,7 +1798,6 @@ state KILLED_STANDING
 
 state KILLED_LOWER_TORSO
 {
-
 	action
 	{
 		death_back			: PAIN_DIRECTION "front" CHANCE "60"
@@ -2221,11 +1943,6 @@ state KILLED_LEG
 
 state EXPLOSION_KILLED
 {
-	entrycommands
-	{
-		exec global/killed.scr "times_blownup"
-	}
-
 	action
 	{
 		death_explosion_large	: PAIN_THRESHOLD "150"
@@ -2265,26 +1982,6 @@ state KILLED_DONE
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //==============================================================================
 //==============================================================================
 //
@@ -2298,7 +1995,7 @@ state USE_LADDER
 	
 	entrycommands
 	{
-		exec global/check_team_swap.scr 
+		exec global/check_team_swap.scr
 		safeholster 1 // put our weapon away
 		attachtoladder // gets the ladder we're going to be climbing
 	}
@@ -2343,6 +2040,7 @@ state GET_ON_LADDER
 		modheight "stand"
 		movementstealth "1.0"
 		moveposflags "standing"
+		exec global/legs_movement.scr "ON_LADDER"
 	}
 
 	action
@@ -2374,6 +2072,7 @@ state LATCH_ONTO_LADDER
 		movementstealth "1.0"
 		moveposflags "standing"
 		tweakladderpos // make sure we're positioned properly on the ladder
+		exec global/legs_movement.scr "ON_LADDER"
 	}
 	
 	states
@@ -2420,12 +2119,13 @@ state GET_OFF_LADDER_BOTTOM
 state FINISHED_GET_OFF_LADDER
 {
 	movetype legs
-
+	
 	entrycommands
 	{
 		exec global/check_team_swap.scr "end"
+		exec global/legs_movement.scr "OFF_LADDER"
 	}
-
+	
 	entrycommands
 	{
 		unattachfromladder
@@ -2441,20 +2141,23 @@ state FINISHED_GET_OFF_LADDER
 // same as FINISHED_GET_OFF_LADDER, except that the player is jumping off
 state JUMP_OFF_LADDER
 {
-	movetype legs
-	
-	entrycommands
-	{
-		exec global/check_team_swap.scr "end"
-		unattachfromladder
-		safeholster 0 // pull weapon back out if we put it away to get on the ladder
-		jumpxy -70 0 150
-	}
+    movetype legs
+    
+    entrycommands
+    {
+        exec global/check_team_swap.scr "end"
+        unattachfromladder
+        forcelegsstate FALL
+        safeholster 0 // pull weapon back out if we put it away to get on the ladder
+        jumpxy -70 0 150
+	exec global/legs_movement.scr "OFF_LADDER"
+    }
 
-	states
-	{
-		STAND			: default
-	}
+
+    states
+    {
+        STAND            : default
+    }
 }
 
 // idling on a ladder with the left hand high
@@ -2703,713 +2406,6 @@ state GENERIC_USE
 	}
 }
 
-//==============================================================================
-//==============================================================================
-//
-// Turrets
-//
-//==============================================================================
-
-state TURRET_PUTAWAY
-{
-	entrycommands
-	{
-		deactivateweapon righthand
-	}
-	
-	states
-	{
-		TURRET_IDLE		: default
-	}
-}
-
-state TURRET_START
-{
-//	movetype anim
-
-	entrycommands
-	{
-		exec global/camper_turret.scr 1
-		exec global/check_team_swap.scr 
-	}
-
-//	action
-//	{
-//		turret_idle		: default
-//	}
-	
-	states
-	{
-//		TURRET_USE		: +USE
-
-		TURRET_PUTAWAY	: PUTAWAYMAIN	// Basic put weapon away move.
-		TURRET_IDLE		: default
-	}
-}
-
-state TURRET_IDLE
-{
-	movetype anim
-
-	action
-	{
-		turret_idle		: default
-	}
-	
-	states
-	{
-//		TURRET_USE		: +USE
-//		GENERIC_USE		: +USE
-		TURRET_END		: !IS_USING_TURRET
-	}
-}
-
-state TURRET_END
-{
-	entrycommands
-	{
-		exec global/camper_turret.scr 0
-		exec global/check_team_swap.scr "end"
-	}
-
-	states
-	{
-
-		STAND			: default
-	}
-}
-
-//state TURRET_USE
-//{
-//	movetype anim
-//
-//	entrycommands
-//	{
-//		usestuff
-//		iprint "USE"
-//	}
-//
-//	action
-//	{
-//		turret_idle		: default
-//	}
-//
-//	states
-//	{
-//		TURRET_IDLE	: default
-//	}
-//}
-
-
-
-
-
-//====================================================================================================================
-// WEAPON CHECK
-//====================================================================================================================
-
-state GET_WEAPON
-{
-	entrycommands
-	{
-		activatenewweapon 
-	}
-
-	 states
-	 {
-		//axis
-		STG44					: IS_WEAPON_ACTIVE "mainhand" "StG 44"
-		MP40					: IS_WEAPON_ACTIVE "mainhand" "MP40"
-		PANZERSCHRECK			: IS_WEAPON_ACTIVE "mainhand" "Panzerschreck"
-		KAR98					: IS_WEAPON_ACTIVE "mainhand" "Mauser KAR 98K"
-		KAR98_SNIPER			: IS_WEAPON_ACTIVE "mainhand" "KAR98 - Sniper"
-	//	WALTHER_P38				: IS_WEAPON_ACTIVE "mainhand" "Walther P38"
-	//	STIELHANDGRANATE			: IS_WEAPON_ACTIVE "mainhand" "Stielhandgranate"
-
-		//both
-		PISTOL_SILENCED			: IS_WEAPON_ACTIVE "mainhand" "Hi-Standard Silenced"
-		SHOTGUN				: IS_WEAPON_ACTIVE "mainhand" "Shotgun"
-	//	BINOCULARS				: IS_WEAPON_ACTIVE "mainhand" "Binoculars"
-
-		//ally
-		BAZOOKA				: IS_WEAPON_ACTIVE "mainhand" "Bazooka"
-		SPRINGFIELD				: IS_WEAPON_ACTIVE "mainhand" "Springfield '03 Sniper"
-
-		M1_GARAND				: IS_WEAPON_ACTIVE "mainhand" "M1 Garand"
-	//	FRAG_GRENADE			: IS_WEAPON_ACTIVE "mainhand" "Frag Grenade"
-
-		BAR					: IS_WEAPON_ACTIVE "mainhand" "BAR"
-	//	COLT_45				: IS_WEAPON_ACTIVE "mainhand" "Colt 45"
-		THOMPSON				: IS_WEAPON_ACTIVE "mainhand" "Thompson"
-
-		//other
-		STAND					: KILLED
-		UNARMED					: default
-	}
-}
-
-state STG44
-{
-	entrycommands
-	{
-		exec weapon_limit/weaponis.scr "models/weapons/mp44.tik"
-	}
-
-	states
-	{
-		STAND				: default
-	}
-}
-
-state MP40
-{
-	entrycommands
-	{
-		exec weapon_limit/weaponis.scr "models/weapons/mp40.tik"
-	}
-
-	states
-	{
-		STAND				: default
-	}
-}
-
-state PANZERSCHRECK
-{
-	entrycommands
-	{
-		exec weapon_limit/weaponis.scr "models/weapons/panzerschreck.tik"
-	}
-
-	states
-	{
-		STAND				: default
-	}
-}
-
-state KAR98
-{
-	entrycommands
-	{
-		exec weapon_limit/weaponis.scr "models/weapons/kar98.tik"
-	}
-
-	states
-	{
-		STAND				: default
-	}
-}
-
-state KAR98_SNIPER
-{
-	entrycommands
-	{
-		exec weapon_limit/weaponis.scr "models/weapons/KAR98sniper.tik"
-	}
-
-	states
-	{
-		STAND				: default
-	}
-}
-
-state WALTHER_P38	
-{
-	entrycommands
-	{
-		exec weapon_limit/weaponis.scr "models/weapons/p38.tik"
-	}
-
-	states
-	{
-		STAND				: default
-	}
-}
-
-state STIELHANDGRANATE
-{
-	entrycommands
-	{
-		exec weapon_limit/weaponis.scr "models/weapons/steilhandgranate.tik"
-	}
-
-	states
-	{
-		STAND				: default
-	}
-}
-
-
-//Weapons all
-
-state PISTOL_SILENCED				
-{
-	entrycommands
-	{
-		exec weapon_limit/weaponis.scr "models/weapons/silencedpistol.tik"
-	}
-
-	states
-	{
-		STAND				: default
-	}
-}
-
-state SHOTGUN														
-{
-	entrycommands
-	{
-		exec weapon_limit/weaponis.scr "models/weapons/shotgun.tik"
-	}
-
-	states
-	{
-		STAND				: default
-	}
-}
-
-
-state UNARMED														
-{
-	entrycommands
-	{
-		exec weapon_limit/weaponis.scr "UNARMED"
-	}
-
-	states
-	{
-		GET_WEAPON				: NEW_WEAPON ANIMDONE_TORSO
-	}
-}
-state BINOCULARS														
-{
-	entrycommands
-	{
-		exec weapon_limit/weaponis.scr "models/weapons/binoculars.tik"
-	}
-
-	states
-	{
-		STAND				: default
-	}
-}
-
-//alies weapons
-
-state BAZOOKA														
-{
-	entrycommands
-	{
-		exec weapon_limit/weaponis.scr "models/weapons/bazooka.tik"
-	}
-
-	states
-	{
-		STAND				: default
-	}
-}
-
-state SPRINGFIELD														
-{
-	entrycommands
-	{
-		exec weapon_limit/weaponis.scr "models/weapons/springfield.tik"
-	}
-
-	states
-	{
-		STAND				: default
-	}
-}
-
-state M1_GARAND														
-{
-	entrycommands
-	{
-		exec weapon_limit/weaponis.scr "models/weapons/m1_garand.tik"
-	}
-
-	states
-	{
-		STAND				: default
-	}
-}
-
-state FRAG_GRENADE														
-{
-	entrycommands
-	{
-		exec weapon_limit/weaponis.scr "models/weapons/m2frag_grenade.tik"
-	}
-
-	states
-	{
-		STAND				: default
-	}
-}
-
-state BAR												
-{
-	entrycommands
-	{
-		exec weapon_limit/weaponis.scr "models/weapons/bar.tik"
-	}
-
-	states
-	{
-		STAND				: default
-	}
-}
-
-state COLT_45									
-{
-	entrycommands
-	{
-		exec weapon_limit/weaponis.scr "models/weapons/colt45.tik"
-	}
-
-	states
-	{
-		STAND				: default
-	}
-}
-
-state THOMPSON											
-{
-	entrycommands
-	{
-		exec weapon_limit/weaponis.scr "models/weapons/thompsonsmg.tik"
-	}
-
-	states
-	{
-		STAND				: default
-	}
-}
-
-//mines animation
-
-
-
-state MINE
-{
-	movetype legs
-
-	//entrycommands
-//	{
-	//	viewmodelanim charge
-	//}
-	
-	action
-	{
-		steilhandgranate_crouch_charge	: IS_WEAPON_ACTIVE "mainhand" "Stielhandgranate" POSITION_TYPE "crouching"
-		steilhandgranate_stand_charge	: IS_WEAPON_ACTIVE "mainhand" "Stielhandgranate"
-	
-		grenade_crouch_charge			: POSITION_TYPE "crouching"
-		grenade_stand_charge			: default
-	}
-
-	states
-	{
-		STAND	 			: KILLED
-		MINE_CHUCK			: ANIMDONE_TORSO
-	}
-}
-
-state MINE_CHUCK
-{
-	movetype legs
-
-	//entrycommands
-	///{
-	///	viewmodelanim fire
-	//}
-
-	action
-	{
-		grenade_crouch_fire				: POSITION_TYPE "crouching"
-		grenade_stand_fire				: default
-	}
-
-	states
-	{
-		STAND	 			: KILLED
-		STAND				: ANIMDONE_TORSO
-	}
-}
-
-//////////////// SERVER PLANES
-state PLANE_TORSO
-{
-
-	movetype anim
-
-	camera behind
-
-	entrycommands
-	{
-		//deactivateweapon righthand
-		//safeholster 1
-		modheight "stand" 
-		movementstealth "1.0"
-		moveposflags "running" "running"
-		viewmodelanim idle
-	}
-	
-	action
-	{
-		unarmed_stand_idle			: default
-	}
-
-	states
-	{
-		IN_PLANE		 	: default
-		STAND				: KILLED
-		
-	}
-}
-
-state IN_PLANE
-{
-
-	states
-	{
-		PLANE_BOMB	 		: MOVEMENT_TYPE "running" ATTACK_SECONDARY
-		STAND				: KILLED
-		PLANE_SPEED_BACKWARD		: RUN BACKWARD
-		PLANE_SPEED_FORWARD 		: RUN FORWARD
-		PLANE_CAM_FORWARD		: !RUN FORWARD
-		PLANE_CAM_BACKWARD		: !RUN BACKWARD
-		PLANE_CAM_UP			: !RUN STRAFE_LEFT 
-		PLANE_CAM_DOWN			: !RUN STRAFE_RIGHT
-		PLANE_LEFT			: RUN STRAFE_LEFT 
-		PLANE_RIGHT			: RUN STRAFE_RIGHT		
-		PLANE_PARACHUTE			: +JUMP
-	}
-}
-
-
-state PLANE_BOMB
-{
-
-	entrycommands
-	{
-		moveposflags "standing" "walking"
-		exec server_planes/damage.scr "BOMB"
-		commanddelay .70 moveposflags "standing" "running"
-	}
-
-	states
-	{
-		IN_PLANE			: default //MOVEMENT_TYPE "running"
-		STAND				: KILLED
-	}
-
-}
-
-state PLANE_CAM_BACKWARD
-{
-	entrycommands
-	{
-		exec server_planes/movement.scr "BACKWARD_WALK"
-	}
-
-	states
-	{
-		PLANE_BOMB	 		: MOVEMENT_TYPE "running" ATTACK_SECONDARY
-		STAND				: KILLED
-		PLANE_SPEED_BACKWARD		: RUN BACKWARD
-		PLANE_SPEED_FORWARD 		: RUN FORWARD
-		PLANE_CAM_FORWARD		: !RUN FORWARD
-		PLANE_CAM_BACKWARD		: !RUN BACKWARD
-		PLANE_CAM_UP			: !RUN STRAFE_LEFT 
-		PLANE_CAM_DOWN			: !RUN STRAFE_RIGHT
-		PLANE_LEFT			: RUN STRAFE_LEFT 
-		PLANE_RIGHT			: RUN STRAFE_RIGHT
-		PLANE_PARACHUTE			: +JUMP
-	}
-}
-
-state PLANE_CAM_FORWARD 
-{
-	entrycommands
-	{
-		exec server_planes/movement.scr "FORWARD_WALK"
-	}
-
-	states
-	{
-		PLANE_BOMB	 		: MOVEMENT_TYPE "running" ATTACK_SECONDARY
-		STAND				: KILLED
-		PLANE_SPEED_BACKWARD		: RUN BACKWARD
-		PLANE_SPEED_FORWARD 		: RUN FORWARD
-		PLANE_CAM_FORWARD		: !RUN FORWARD
-		PLANE_CAM_BACKWARD		: !RUN BACKWARD
-		PLANE_CAM_UP			: !RUN STRAFE_LEFT 
-		PLANE_CAM_DOWN			: !RUN STRAFE_RIGHT
-		PLANE_LEFT			: RUN STRAFE_LEFT 
-		PLANE_RIGHT			: RUN STRAFE_RIGHT
-		PLANE_PARACHUTE			: +JUMP
-	}
-}
-
-state PLANE_SPEED_BACKWARD
-{
-	entrycommands
-	{
-		exec server_planes/movement.scr "BACKWARD_RUN"
-	}
-
-	states
-	{
-		PLANE_BOMB	 		: MOVEMENT_TYPE "running" ATTACK_SECONDARY
-		STAND				: KILLED
-		PLANE_SPEED_BACKWARD		: RUN BACKWARD
-		PLANE_SPEED_FORWARD 		: RUN FORWARD
-		PLANE_CAM_FORWARD		: !RUN FORWARD
-		PLANE_CAM_BACKWARD		: !RUN BACKWARD
-		PLANE_CAM_UP			: !RUN STRAFE_LEFT 
-		PLANE_CAM_DOWN			: !RUN STRAFE_RIGHT
-		PLANE_LEFT			: RUN STRAFE_LEFT 
-		PLANE_RIGHT			: RUN STRAFE_RIGHT
-		PLANE_PARACHUTE			: +JUMP
-	}
-}
-
-state PLANE_SPEED_FORWARD 
-{
-	entrycommands
-	{
-		exec server_planes/movement.scr "FORWARD_RUN"
-	}
-
-	states
-	{
-		PLANE_BOMB	 		: MOVEMENT_TYPE "running" ATTACK_SECONDARY
-		STAND				: KILLED
-		PLANE_SPEED_BACKWARD		: RUN BACKWARD
-		PLANE_SPEED_FORWARD 		: RUN FORWARD
-		PLANE_CAM_FORWARD		: !RUN FORWARD
-		PLANE_CAM_BACKWARD		: !RUN BACKWARD
-		PLANE_CAM_UP			: !RUN STRAFE_LEFT 
-		PLANE_CAM_DOWN			: !RUN STRAFE_RIGHT
-		PLANE_LEFT			: RUN STRAFE_LEFT 
-		PLANE_RIGHT			: RUN STRAFE_RIGHT
-		PLANE_PARACHUTE			: +JUMP
-	}
-}
-
-
-state PLANE_CAM_DOWN
-{
-	entrycommands
-	{
-		exec server_planes/movement.scr "RIGHT_WALK"
-	}
-
-	states
-	{
-		PLANE_BOMB	 		: MOVEMENT_TYPE "running" ATTACK_SECONDARY
-		STAND				: KILLED
-		PLANE_SPEED_BACKWARD		: RUN BACKWARD
-		PLANE_SPEED_FORWARD 		: RUN FORWARD
-		PLANE_CAM_FORWARD		: !RUN FORWARD
-		PLANE_CAM_BACKWARD		: !RUN BACKWARD
-		PLANE_CAM_UP			: !RUN STRAFE_LEFT 
-		PLANE_CAM_DOWN			: !RUN STRAFE_RIGHT
-		PLANE_LEFT			: RUN STRAFE_LEFT 
-		PLANE_RIGHT			: RUN STRAFE_RIGHT
-		PLANE_PARACHUTE			: +JUMP
-	}
-}
-
-state PLANE_CAM_UP
-{
-	entrycommands
-	{
-		exec server_planes/movement.scr "LEFT_WALK"
-	}
-
-	states
-	{
-		PLANE_BOMB	 		: MOVEMENT_TYPE "running" ATTACK_SECONDARY
-		STAND				: KILLED
-		PLANE_SPEED_BACKWARD		: RUN BACKWARD
-		PLANE_SPEED_FORWARD 		: RUN FORWARD
-		PLANE_CAM_FORWARD		: !RUN FORWARD
-		PLANE_CAM_BACKWARD		: !RUN BACKWARD
-		PLANE_CAM_UP			: !RUN STRAFE_LEFT 
-		PLANE_CAM_DOWN			: !RUN STRAFE_RIGHT
-		PLANE_LEFT			: RUN STRAFE_LEFT 
-		PLANE_RIGHT			: RUN STRAFE_RIGHT
-		PLANE_PARACHUTE			: +JUMP
-	}
-}
-
-
-state PLANE_RIGHT
-{
-	entrycommands
-	{
-		exec server_planes/movement.scr "RIGHT_RUN"
-	}
-
-	states
-	{
-		PLANE_RIGHT			: RUN STRAFE_RIGHT
-		IN_PLANE			: !STRAFE_RIGHT
-		PLANE_PARACHUTE			: +JUMP
-	}
-}
-
-state PLANE_LEFT
-{
-	entrycommands
-	{
-		exec server_planes/movement.scr "LEFT_RUN"
-	}
-
-	states
-	{
-		PLANE_LEFT			: RUN STRAFE_LEFT 
-		IN_PLANE			: !STRAFE_LEFT 
-		PLANE_PARACHUTE			: +JUMP
-	}
-}
-
-
-
-state PLANE_PARACHUTE
-{
-	entrycommands
-	{
-		exec server_planes/movement.scr "JUMP"
-	}
-
-	states
-	{
-		IN_PLANE			: default
-	}
-}
-
-
-
-//====================================================================================================================
-// DOG STATES & DOG LADDER FIX
-//====================================================================================================================
-
-state DOG_TORSO
-{
-
-	entrycommands
-	{
-		usestuff
-	}
-
-               states
-               {
-               }
-}
 
 //==============================================================================
 //==============================================================================
@@ -3433,10 +2429,16 @@ state VEHICLE_PUTAWAY
 
 state VEHICLE_START
 {
+//	movetype anim
+	
+//	action
+//	{
+//		vehicle_idle			: default
+//	}
+	
 	states
 	{
 		VEHICLE_PUTAWAY	: PUTAWAYMAIN	// Basic put weapon away move.
-		STAND		: KILLED
 		VEHICLE_IDLE	: default
 	}
 }
@@ -3444,11 +2446,6 @@ state VEHICLE_START
 state VEHICLE_IDLE
 {
 	movetype anim
-
-	entrycommands
-	{
-		exec global/playervehicle_movement.scr "IN_VEHICLE"
-	}
 	
 	action
 	{
@@ -3457,80 +2454,110 @@ state VEHICLE_IDLE
 	
 	states
 	{
-		STAND				: KILLED
-		VEHICLE_BACKWARD		: RUN BACKWARD
-		VEHICLE_FORWARD 		: RUN FORWARD
-		VEHICLE_LOOK_LEFT		: RUN STRAFE_LEFT 
-		VEHICLE_LOOK_RIGHT		: RUN STRAFE_RIGHT
+		VEHICLE_USE		: +USE
+		STAND			: !IS_USING_VEHICLE
 	}
 }
 
-state VEHICLE_BACKWARD
+state VEHICLE_USE
 {
-	entrycommands
+	movetype anim
+
+//	entrycommands
+//	{
+//		usestuff
+//	}
+
+	action
 	{
-		exec global/playervehicle_movement.scr "BACKWARD_RUN"
+		vehicle_idle			: default
 	}
 
 	states
 	{
-		STAND				: KILLED
-		VEHICLE_BACKWARD		: RUN BACKWARD
-		VEHICLE_FORWARD 		: RUN FORWARD
-		VEHICLE_LOOK_LEFT		: RUN STRAFE_LEFT 
-		VEHICLE_LOOK_RIGHT		: RUN STRAFE_RIGHT
+		VEHICLE_IDLE	: default
 	}
 }
 
-state VEHICLE_FORWARD 
+
+//==============================================================================
+//==============================================================================
+//
+// Turrets
+//
+//==============================================================================
+
+state TURRET_PUTAWAY
 {
 	entrycommands
 	{
-		exec global/playervehicle_movement.scr "FORWARD_RUN"
+		deactivateweapon righthand
+	}
+	
+	states
+	{
+		TURRET_IDLE		: default
+	}
+}
+
+state TURRET_START
+{
+	entrycommands
+	{
+		exec global/check_team_swap.scr 
+	}
+	
+	states
+	{
+		TURRET_PUTAWAY	: PUTAWAYMAIN	// Basic put weapon away move.
+		TURRET_IDLE		: default
+	}
+}
+
+state TURRET_IDLE
+{
+	movetype anim
+	
+	action
+	{
+		turret_idle		: default
+	}
+	
+	states
+	{
+		TURRET_END		: !IS_USING_TURRET
+	}
+}
+state TURRET_END
+{
+	entrycommands
+	{
+		exec global/check_team_swap.scr "end"
 	}
 
 	states
 	{
-		STAND				: KILLED
-		VEHICLE_BACKWARD		: RUN BACKWARD
-		VEHICLE_FORWARD 		: RUN FORWARD
-		VEHICLE_LOOK_LEFT		: RUN STRAFE_LEFT 
-		VEHICLE_LOOK_RIGHT		: RUN STRAFE_RIGHT
+
+		STAND			: default
 	}
 }
+//state TURRET_USE
+//{
+//	movetype anim
+//
+//	entrycommands
+//	{
+//		usestuff
+//	}
+//
+//	action
+//	{
+//		turret_idle		: default
+//	}
+//
+//	states
+//	{
+//		TURRET_IDLE	: default
+//	}
+//}
 
-state VEHICLE_LOOK_RIGHT
-{
-	entrycommands
-	{
-		exec global/playervehicle_movement.scr "RIGHT_RUN"
-	}
-
-	states
-	{
-		STAND				: KILLED
-		VEHICLE_BACKWARD		: RUN BACKWARD
-		VEHICLE_FORWARD 		: RUN FORWARD
-		VEHICLE_LOOK_LEFT		: RUN STRAFE_LEFT 
-		VEHICLE_LOOK_RIGHT		: RUN STRAFE_RIGHT
-		VEHICLE_IDLE			: !STRAFE_RIGHT
-	}
-}
-
-state VEHICLE_LOOK_LEFT
-{
-	entrycommands
-	{
-		exec global/playervehicle_movement.scr "LEFT_RUN"
-	}
-
-	states
-	{
-		STAND				: KILLED
-		VEHICLE_BACKWARD		: RUN BACKWARD
-		VEHICLE_FORWARD 		: RUN FORWARD
-		VEHICLE_LOOK_LEFT		: RUN STRAFE_LEFT 
-		VEHICLE_LOOK_RIGHT		: RUN STRAFE_RIGHT
-		VEHICLE_IDLE			: !STRAFE_LEFT
-	}
-}
